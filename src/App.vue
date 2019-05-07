@@ -12,6 +12,8 @@
 
 <script>
 import { Loading, TransferDom } from "vux";
+import { mapState } from "vuex";
+import { Promise } from "q";
 export default {
   components: {
     Loading
@@ -25,8 +27,12 @@ export default {
       voteProxy: null
     };
   },
-  computed: {},
-  async created() {},
+  computed: {
+    ...mapState(["scatter", "account", "loadingShow"])
+  },
+  async created() {
+    await this.$store.dispatch("initScatter");
+  },
   mounted() {
     this.intervalId = window.setInterval(async () => {
       if (!this.scatter) {
@@ -36,16 +42,20 @@ export default {
           window.clearInterval(this.intervalId);
           // 获取当前帐号
           await this.$store.dispatch("getIdentity");
-          // // 获取帐号代理人详情
-          // await this.$store.dispatch("updateVoteAccountStatus", {
-          //   account: this.account && this.account.name,
-          //   invitecode: this.$route.query.invitecode || "",
-          //   redirect: "home"
-          // });
-          // // 获取代理投票人列表
-          // this.voteProxy = await this.$store.dispatch("updateVoteProxy");
-          // // 获取帐号余额
-          // await this.$store.dispatch("getAccountBalance");
+          try {
+            await Promise.all([
+              // // 获取帐号余额
+              this.$store.dispatch("getAccountBalance"),
+              // 获取rexpool信息
+              this.$store.dispatch("getRexPool"),
+              // 获取rexbal信息
+              this.$store.dispatch("getRexBal"),
+              // 获取REX收益来源
+              this.$store.dispatch("getRexProfits")
+            ]);
+          } catch (error) {
+            console.log("error for request data");
+          }
         } finally {
           this.$store.commit("setLoadingShow", { loadingShow: false });
         }
@@ -65,31 +75,33 @@ export default {
   -moz-osx-font-smoothing: grayscale;
 }
 
-@font-face {
-  font-family: "DIN-Bold";
-  src: url("./assets/DIN-Bold.otf");
+html {
+  box-sizing: border-box;
+  background: #f8f9fa;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
 }
 
 @font-face {
-  font-family: "DIN-Medium";
-  src: url("./assets/DIN-Medium.otf");
+  font-family: "MarkPro-Medium";
+  src: url("./assets/MarkPro-Medium.otf");
 }
 
 @font-face {
-  font-family: "DIN-Regular";
-  src: url("./assets/DIN-Regular.otf");
-}
-
-.number-bold {
-  font-family: "DIN-Bold";
+  font-family: "MarkPro";
+  src: url("./assets/MarkPro.otf");
 }
 
 .number-medium {
-  font-family: "DIN-Medium";
+  font-family: "MarkPro-Medium";
 }
 
 .number-regular {
-  font-family: "DIN-Regular";
+  font-family: "MarkPro";
 }
 
 .hide {

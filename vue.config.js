@@ -5,15 +5,15 @@ module.exports = {
   devServer: {
     // 代理这个地址[CORS]
     proxy: {
-      "/hcb-api": {
+      "/ethte-api": {
         target:
           process.env.NODE_ENV === "production"
-            ? "https://more.ethte.com/api2/"
-            : "http://apiv2.five1429.cn/api2/",
+            ? "https://www.ethte.com/"
+            : "https://www.ethte.com/",
         changeOrigin: true,
         ws: true,
         pathRewrite: {
-          "^/hcb-api": ""
+          "^/ethte-api": ""
         }
       }
     }

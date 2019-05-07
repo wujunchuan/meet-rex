@@ -5,6 +5,22 @@ import store from "./store";
 import http from "./http";
 import "lib-flexible"; // 利用手淘flexible布局，字体需要根据dpr看来改变大小
 
+// lodash
+import loadsh from "lodash";
+// import Lodash
+Object.defineProperty(Vue.prototype, "$_", { value: loadsh });
+
+// Echarts
+import ECharts from "vue-echarts/components/ECharts.vue";
+// 手动引入 ECharts 各模块来减小打包体积
+import "echarts/lib/component/tooltip";
+import "echarts/lib/component/legend";
+import "echarts/lib/chart/line";
+import "echarts/lib/component/dataZoom";
+import "echarts/lib/chart/candlestick";
+// regist components
+Vue.component("chart", ECharts);
+
 /**
  *  移除移动端点击延迟
  */
@@ -23,29 +39,34 @@ if (process.env.NODE_ENV === "development") {
 
 Vue.prototype.$http = http;
 
-import moment from "moment";
+// import moment from "moment";
+import { toAssertSymbol, getAssertCount, toFixed, numberComma } from "./util";
 
-moment.locale("zh-cn");
+// moment.locale("zh-cn");
 
-/**
- * 关于时间格式的过滤器
- */
-Vue.filter("formatDate", function(value) {
-  if (value) {
-    return moment(value).format("YYYY-MM-DD");
+Vue.filter("formatAssert", function(
+  value,
+  { decimal = 4, symbol = "EOS" } = {}
+) {
+  if (typeof value !== "number") {
+    value = getAssertCount(value);
+    value = Number(value);
   }
+  return toAssertSymbol(value, decimal, symbol);
 });
 
-Vue.filter("formatDateWithTime", function(value) {
-  if (value) {
-    return moment(value).format("YYYY/MM/DD HH:mm");
+Vue.filter("toFixed", function(value, decimal = 4) {
+  if (typeof value === "string") {
+    value = getAssertCount(value);
   }
+  return toFixed(value, decimal);
 });
 
-Vue.filter("formatDateWithWeek", function(value) {
-  if (value) {
-    return moment(value).format("YYYY/MM/DD HH:mm dddd");
+Vue.filter("comma", function(value) {
+  if (typeof value === "string") {
+    value = getAssertCount(value);
   }
+  return numberComma(value);
 });
 
 new Vue({

@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-// import http from "./http";
+import http from "./http";
 // import router from "./router";
 
 import Eos from "eosjs";
@@ -19,9 +19,16 @@ export default new Vuex.Store({
     account: null, // 当前账号名(Scatter获取)
     scatter: null, // Global Scatter Object
     eos: null, // Global Eos Obj
-    loadingShow: false // Loading status
+    loadingShow: true, // Loading status
+    liquidBalance: 0,
+    rexPool: null,
+    rexBal: null,
+    rexProfits: null
   },
   mutations: {
+    setLiquidBalance(state, payload) {
+      state.liquidBalance = Number(payload.liquidBalance);
+    },
     setLoadingShow(state, payload) {
       state.loadingShow = payload.loadingShow;
     },
@@ -33,10 +40,51 @@ export default new Vuex.Store({
     },
     setAccount(state, payload) {
       state.account = payload.account;
+    },
+    setRexPool(state, payload) {
+      state.rexPool = payload.rexPool;
+    },
+    setRexBal(state, payload) {
+      state.rexBal = payload.rexBal;
+    },
+    setRexProfits(state, payload) {
+      state.rexProfits = payload.rexProfits;
     }
   },
   actions: {
-    // getAccountBalance
+    // 初始化 Scatter
+    initScatter({ commit, state }) {
+      return new Promise(async (resolve, reject) => {
+        if (state.scatter && state.eos) {
+          resolve({ scatter: state.scatter, eos: state.eos });
+          return;
+        }
+        // for MEETONE
+        if (window.scatter && window.scatter.isInject) {
+          window.ScatterJS.scatter = window.scatter;
+        }
+        let connect = null;
+        try {
+          ScatterJS.plugins(new ScatterEOS());
+          connect = await ScatterJS.scatter.connect("REX | MEET.ONE");
+          if (!connect) {
+            alert("init failed");
+            reject();
+            return false;
+          }
+          const scatter = ScatterJS.scatter;
+          window.scatter = scatter;
+          commit("setScatter", { scatter });
+          const scatterEos = scatter.eos(network, Eos);
+          commit("setEos", { eos: scatterEos });
+          window.ScatterJS = null;
+          resolve({ scatter, eos: scatterEos });
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    // 获取帐号的可用余额
     getAccountBalance({ commit, state, dispatch }) {
       return new Promise(async resolve => {
         await dispatch("initScatter");
@@ -56,38 +104,6 @@ export default new Vuex.Store({
         resolve();
       });
     },
-    // initScatter
-    initScatter({ commit, state }) {
-      return new Promise(async (resolve, reject) => {
-        if (state.scatter && state.eos) {
-          resolve({ scatter: state.scatter, eos: state.eos });
-          return;
-        }
-        // for MEETONE
-        if (window.scatter && window.scatter.isInject) {
-          window.ScatterJS.scatter = window.scatter;
-        }
-        let connect = null;
-        try {
-          ScatterJS.plugins(new ScatterEOS());
-          connect = await ScatterJS.scatter.connect("REX");
-          if (!connect) {
-            alert("init failed");
-            reject();
-            return false;
-          }
-          const scatter = ScatterJS.scatter;
-          window.scatter = scatter;
-          commit("setScatter", { scatter });
-          const scatterEos = scatter.eos(network, Eos);
-          commit("setEos", { eos: scatterEos });
-          window.ScatterJS = null;
-          resolve({ scatter, eos: scatterEos });
-        } catch (error) {
-          reject(error);
-        }
-      });
-    },
     // 获取当前帐号
     getIdentity({ commit, state, dispatch }) {
       return new Promise(async (resolve, reject) => {
@@ -99,6 +115,75 @@ export default new Vuex.Store({
               x => x.blockchain === "eos"
             );
             commit("setAccount", { account });
+            resolve();
+          } else {
+            reject();
+          }
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    getRexBal({ commit, state, dispatch }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            let res = await state.eos.getTableRows({
+              code: "eosio",
+              json: true,
+              limit: 1,
+              lower_bound: state.account.name,
+              scope: "eosio",
+              table: "rexbal",
+              upper_bound: state.account.name
+            });
+            if (res.rows && res.rows.length) {
+              let rexBal = res.rows[0];
+              resolve(rexBal);
+              commit("setRexBal", { rexBal });
+            }
+          } else {
+            reject();
+          }
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    // 获取rexpool信息
+    getRexPool({ commit, state, dispatch }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            let res = await state.eos.getTableRows({
+              code: "eosio",
+              json: true,
+              scope: "eosio",
+              table: "rexpool"
+            });
+            if (res.rows && res.rows.length) {
+              let rexPool = res.rows[0];
+              resolve(rexPool);
+              commit("setRexPool", { rexPool });
+            }
+            resolve();
+          } else {
+            reject();
+          }
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    // get rex profits
+    getRexProfits({ commit }) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          let rexProfits = await http.get("/ethte-api/rex_profit");
+          if (rexProfits.ramfee) {
+            commit("setRexProfits", { rexProfits });
             resolve();
           } else {
             reject();

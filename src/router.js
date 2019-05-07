@@ -15,46 +15,9 @@ export default new Router({
       component: Home
     },
     {
-      path: "/invite",
-      name: "invite",
-      component: () => import("./views/Invite.vue")
-    },
-
-    // 累计收益 cumulative
-    {
-      path: "/cumulative",
-      name: "cumulative",
-      component: () => import("./views/Cumulative.vue")
-    },
-
-    // 年化 annualized
-    {
-      path: "/annualized",
-      name: "annualized",
-      component: () => import("./views/Annualized")
-    },
-
-    // 记录列表 record
-    {
-      path: "/record",
-      name: "record",
-      component: () => import("./views/Record")
-    },
-
-    // 记录详情 record-detail
-    {
-      path: "/record/detail",
-      name: "record-detail",
-      props: true,
-      component: () => import("./views/RecordDetail")
-    },
-
-    // 抵押资源页
-    {
-      path: "/delegate",
-      name: "delegate",
-      props: true,
-      component: () => import("./views/Delegate")
+      path: "/demo",
+      name: "demo",
+      component: () => import("./views/Demo.vue")
     }
   ]
 });

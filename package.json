@@ -10,14 +10,17 @@
   "dependencies": {
     "axios": "^0.18.0",
     "core-js": "^2.6.5",
+    "echarts": "^4.2.1",
     "eosjs": "^16.0.6",
     "fastclick": "^1.0.6",
     "lib-flexible": "^0.3.2",
+    "lodash": "^4.17.11",
     "meet-bridge": "^2.0.2-release",
     "moment": "^2.24.0",
     "scatterjs-core": "^2.7.16",
     "scatterjs-plugin-eosjs": "^1.5.1",
     "vue": "^2.6.10",
+    "vue-echarts": "^4.0.2",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1",
     "vux": "^2.9.3"

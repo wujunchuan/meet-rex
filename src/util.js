@@ -8,14 +8,38 @@ export const toFixed = (num, decimal = 4) => {
 };
 
 /**
+ * @param {Number | String} x 需要千分位的数字/字符串
+ */
+export const numberComma = x => {
+  let parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+};
+
+/**
  * 将格式如 1.2345 的number转换成格式如 `1.2345 EOS` 的字符串
  * @author JohnTrump
  * @param {Number} num 数字
  * @param {Number} decimal default=4 精度
  * @param {String} symbol 符号 default='EOS'
  */
+
 export const toAssertSymbol = (num, decimal = 4, symbol = "EOS") => {
-  return toFixed(num, decimal).toFixed(decimal) + " " + symbol;
+  return numberComma(toFixed(num, decimal).toFixed(decimal)) + " " + symbol;
+};
+
+/**
+ *
+ * 将格式 如`1.2345 EOS` 的字符串转换成 1.234的数字
+ * @param {String} str 格式如`1.2345 EOS`
+ * 如果发生异常,则抛出0
+ */
+export const getAssertCount = str => {
+  try {
+    return Number(str.split(" ")[0]);
+  } catch (error) {
+    return 0;
+  }
 };
 
 /**
