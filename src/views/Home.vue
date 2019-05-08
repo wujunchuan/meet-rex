@@ -27,7 +27,7 @@
         <!-- 租赁比 -->
         <div class="percentage">
           <span class="title"
-            >已租赁资源/资金池总量（{{ lentableRate }}%）</span
+            >已租赁资源/资金池总量（{{ lentableRate | toFixed }}%）</span
           >
           <vux-progress
             class="vux-progress"
@@ -104,9 +104,30 @@
           <div class="nav">充提</div>
         </div>
       </div>
-      <div class="card small" v-if="false">
-        <div class="title">待成交订单</div>
-        <div class="nav">无</div>
+
+      <div class="form-container full">
+        <div
+          class="card small item touchable"
+          @click="$router.push({ name: 'fund' })"
+        >
+          <div class="title">REX fund</div>
+          <div class="nav number-medium">
+            <template v-if="rexFund">
+              {{ rexFund.balance }}
+            </template>
+            <template v-else>
+              无
+            </template>
+          </div>
+        </div>
+        <div class="card small item  touchable">
+          <div class="title">租赁记录</div>
+          <div class="nav number-medium"></div>
+        </div>
+        <div class="card small item  touchable">
+          <div class="title">待成交订单(sell queue)</div>
+          <div class="nav number-medium">无</div>
+        </div>
       </div>
     </div>
     <div class="custom-alert" v-transfer-dom>
@@ -283,7 +304,14 @@ export default {
 
       return getAssertCount(this.rexProfits.ramfee);
     },
-    ...mapState(["account", "liquidBalance", "rexPool", "rexBal", "rexProfits"])
+    ...mapState([
+      "account",
+      "liquidBalance",
+      "rexPool",
+      "rexBal",
+      "rexProfits",
+      "rexFund"
+    ])
   },
   methods: {
     navto(target = "rent") {
@@ -307,6 +335,10 @@ export default {
             target: "REXExchangePage"
           });
           break;
+
+        case "fund":
+          console.log("fund");
+          break;
         default:
           break;
       }
@@ -317,12 +349,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.touchable {
-  &:active {
-    opacity: 0.7;
-  }
-}
-
 .header {
   padding: 15px 15px 12px;
   background-color: #548abb;
@@ -446,6 +472,15 @@ export default {
       &:nth-child(2) {
         margin: 12px 0;
       }
+    }
+  }
+
+  .item {
+    border-radius: 0;
+    padding-left: 10px;
+    border-bottom: 1px solid #e8e8e8;
+    &:last-of-type {
+      border-bottom: 0;
     }
   }
 

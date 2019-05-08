@@ -18,6 +18,11 @@ export default new Router({
       path: "/demo",
       name: "demo",
       component: () => import("./views/Demo.vue")
+    },
+    {
+      path: "/fund",
+      name: "fund",
+      component: () => import("./views/Fund.vue")
     }
   ]
 });
