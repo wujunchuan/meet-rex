@@ -2,13 +2,13 @@
   <div class="home">
     <div class="header">
       <div class="profits-container">
-        <div class="profits">
+        <div class="profits" @click="isShowQA = true">
           <span class="title touchable">
             7日年化收益率
           </span>
-          <!-- <div class="question">
+          <div class="question touchable">
             <img src="../assets/icon-question.png" alt="" />
-          </div> -->
+          </div>
         </div>
         <span class="profits-count number-medium">
           {{ recentProfit | toFixed(2) }}
@@ -109,20 +109,37 @@
         <div class="nav">无</div>
       </div>
     </div>
+    <div class="custom-alert" v-transfer-dom>
+      <alert v-model="isShowQA" :button-text="'知道了'" :title="'年化说明'">
+        <div class="detail">
+          7日年化收益率 = (今日REX价格 / 7日前REX价格 - 1) / 7 x 365
+        </div>
+        <div class="notes">
+          7日年化收益率，根据当日前 7 日内
+          REX价格变化计算得出。不能代表未来收入，仅供参考。
+        </div>
+      </alert>
+    </div>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
 import { getAssertCount, toFixed } from "../util.js";
+import { TransferDom, Alert } from "vux";
 import VuxProgress from "../components/VuxProgress";
 import MeetBridge from "meet-bridge";
 const meetBridge = new MeetBridge();
 
 export default {
   name: "home",
+  directives: {
+    TransferDom
+  },
+
   components: {
-    VuxProgress
+    VuxProgress,
+    Alert
   },
   async mounted() {
     // 获取最近七天的收益
@@ -134,7 +151,8 @@ export default {
   data() {
     return {
       rexPrices: [],
-      profitDatas: []
+      profitDatas: [],
+      isShowQA: false
     };
   },
   computed: {
@@ -487,5 +505,19 @@ export default {
 .card-half {
   width: 165px;
   margin-top: 10px;
+}
+
+.custom-alert {
+  .detail {
+    text-align: justify;
+    line-height: 21px;
+    color: #323232;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  .notes {
+    text-align: justify;
+    font-size: 10px;
+  }
 }
 </style>

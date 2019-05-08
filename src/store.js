@@ -23,9 +23,14 @@ export default new Vuex.Store({
     liquidBalance: 0,
     rexPool: null,
     rexBal: null,
-    rexProfits: null
+    rexProfits: null,
+    rexFund: null
   },
   mutations: {
+    setRexFund(state, payload) {
+      console.log(payload);
+      state.rexFund = payload.rexFund;
+    },
     setLiquidBalance(state, payload) {
       state.liquidBalance = Number(payload.liquidBalance);
     },
@@ -184,6 +189,35 @@ export default new Vuex.Store({
           let rexProfits = await http.get("/ethte-api/rex_profit");
           if (rexProfits.ramfee) {
             commit("setRexProfits", { rexProfits });
+            resolve();
+          } else {
+            reject();
+          }
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    getRexFund({ commit, state, dispatch }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            let res = await state.eos.getTableRows({
+              json: true,
+              code: "eosio",
+              scope: "eosio",
+              table: "rexfund",
+              table_key: "",
+              lower_bound: state.account.name,
+              upper_bound: state.account.name,
+              limit: 1
+            });
+            if (res.rows && res.rows.length) {
+              let rexFund = res.rows[0];
+              resolve(rexFund);
+              commit("setRexFund", { rexFund });
+            }
             resolve();
           } else {
             reject();

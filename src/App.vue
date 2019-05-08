@@ -50,6 +50,8 @@ export default {
               this.$store.dispatch("getRexPool"),
               // 获取rexbal信息
               this.$store.dispatch("getRexBal"),
+              // 获取rexbal信息
+              this.$store.dispatch("getRexFund"),
               // 获取REX收益来源
               this.$store.dispatch("getRexProfits")
             ]);
