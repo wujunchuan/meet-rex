@@ -5,7 +5,7 @@ module.exports = {
   devServer: {
     // 代理这个地址[CORS]
     proxy: {
-      "/ethte-api": {
+      "/eos_api": {
         target:
           process.env.NODE_ENV === "production"
             ? "https://www.ethte.com/"
@@ -13,7 +13,7 @@ module.exports = {
         changeOrigin: true,
         ws: true,
         pathRewrite: {
-          "^/ethte-api": ""
+          "^/eos_api": ""
         }
       }
     }

@@ -165,7 +165,7 @@ export default {
   async mounted() {
     // 获取最近七天的收益
     let rexPrices = await this.$http.get(
-      "/ethte-api/price/token/6?token=eos_rex"
+      "/eos_api/price/token/6?token=eos_rex"
     );
     this.rexPrices = rexPrices;
   },

@@ -186,7 +186,7 @@ export default new Vuex.Store({
     getRexProfits({ commit }) {
       return new Promise(async (resolve, reject) => {
         try {
-          let rexProfits = await http.get("/ethte-api/rex_profit");
+          let rexProfits = await http.get("/eos_api/rex_profit");
           if (rexProfits.ramfee) {
             commit("setRexProfits", { rexProfits });
             resolve();
