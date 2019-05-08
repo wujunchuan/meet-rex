@@ -1,58 +1,82 @@
 <template>
   <div class="fund">
-    <div class="button-group">
-      <div
-        @click="mode = 'deposit'"
-        class="button"
-        :class="mode === 'deposit' ? 'active' : null"
-      >
-        存入
+    <div class="container">
+      <div class="button-group">
+        <div
+          @click="mode = 'deposit'"
+          class="button"
+          :class="mode === 'deposit' ? 'active' : null"
+        >
+          存入
+        </div>
+        <div
+          @click="mode = 'withdraw'"
+          class="button"
+          :class="mode === 'withdraw' ? 'active' : null"
+        >
+          取出
+        </div>
       </div>
-      <div
-        @click="mode = 'withdraw'"
-        class="button"
-        :class="mode === 'withdraw' ? 'active' : null"
-      >
-        取出
+    </div>
+    <div class="info-container">
+      <!-- Fund balance -->
+      <div class="balance">
+        <h1 class="title">资金池余额</h1>
+        <div class="number-medium">
+          {{ rexFund && rexFund.balance }}
+        </div>
+      </div>
+      <!-- 存入 -->
+      <div class="deposit" v-if="mode === 'deposit'">
+        <h1 class="title">存入金额</h1>
+        <div>
+          <input
+            v-model.number.trim="depositAcount"
+            type="number"
+            :placeholder="liquidBalance"
+          />
+          <span class="number-medium unit">EOS</span>
+          <!-- 快速选择 -->
+          <div class="quick-button-group">
+            <div class="quick-button" @click="quick(0.25)">25%</div>
+            <div class="quick-button" @click="quick(0.5)">50%</div>
+            <div class="quick-button" @click="quick(0.75)">75%</div>
+            <div class="quick-button" @click="quick(1)">ALL</div>
+          </div>
+        </div>
+      </div>
+      <!-- 取出 -->
+      <div class="withdraw" v-if="mode === 'withdraw'">
+        <h1 class="title">取出金额</h1>
+        <div>
+          <input
+            v-model.number.trim="withdrawAcount"
+            type="number"
+            :placeholder="rexFund && rexFund.balance | getAssertCount"
+          />
+          <span class="number-medium unit">EOS</span>
+          <!-- 快速选择 -->
+          <div class="quick-button-group">
+            <div class="quick-button" @click="quick(0.25)">25%</div>
+            <div class="quick-button" @click="quick(0.5)">50%</div>
+            <div class="quick-button" @click="quick(0.75)">75%</div>
+            <div class="quick-button" @click="quick(1)">ALL</div>
+          </div>
+        </div>
       </div>
     </div>
-    <!-- Fund balance -->
 
-    <div class="balance">
-      <h1>资金池余额</h1>
-      {{ rexFund.balance }}
+    <div class="container">
+      <div class="button-confirm touchable" @click="pushTransaction">
+        确认{{ mode === "deposit" ? "存入" : "取出" }}
+      </div>
     </div>
 
-    <!-- 存入 -->
-    <div class="deposit" v-if="mode === 'deposit'">
-      <h1>存入金额</h1>
-      <input
-        v-model.number.trim="depositAcount"
-        type="number"
-        :placeholder="liquidBalance + ' EOS'"
-      />
-    </div>
-
-    <!-- 取出 -->
-    <div class="withdraw" v-if="mode === 'withdraw'">
-      <h1>取出金额</h1>
-      <input
-        v-model.number.trim="withdrawAcount"
-        type="number"
-        :placeholder="rexFund.balance"
-      />
-    </div>
-
-    <!-- 快速选择 -->
-    <div class="quick-button-group">
-      <div class="quick-button" @click="quick(0.25)">25%</div>
-      <div class="quick-button" @click="quick(0.5)">50%</div>
-      <div class="quick-button" @click="quick(0.75)">75%</div>
-      <div class="quick-button" @click="quick(1)">ALL</div>
-    </div>
-
-    <div class="button-confirm touchable" @click="pushTransaction">
-      确认{{ mode === "deposit" ? "存入" : "取出" }}
+    <div class="container">
+      <div class="notes">
+        注意：<br />
+        REX 资金池内 EOS 不产生收益，建议直接使用 buy/sell REX 功能。
+      </div>
     </div>
   </div>
 </template>
@@ -81,15 +105,16 @@ export default {
     async pushTransaction() {
       const account = this.account;
       if (this.mode === "deposit") {
+        if (this.depositAcount <= 0) return;
         let amount = toAssertSymbol(this.depositAcount);
         try {
+          this.$store.commit("setLoadingShow", { loadingShow: true });
           let res = await this.eos.contract("eosio").then(contract => {
             return contract.deposit(this.account.name, amount, {
               authorization:
                 account.name + "@" + getPermission(account.authority)
             });
           });
-          // TODO: 成功 更新余额
           console.log(res);
           setTimeout(() => {
             // // 获取帐号余额
@@ -99,17 +124,20 @@ export default {
           }, 1200);
         } catch (error) {
           alert(JSON.stringify(error));
+        } finally {
+          this.$store.commit("setLoadingShow", { loadingShow: false });
         }
       } else {
+        if (this.withdrawAcount <= 0) return;
         let amount = toAssertSymbol(this.withdrawAcount);
         try {
+          this.$store.commit("setLoadingShow", { loadingShow: true });
           let res = await this.eos.contract("eosio").then(contract => {
             return contract.withdraw(this.account.name, amount, {
               authorization:
                 account.name + "@" + getPermission(account.authority)
             });
           });
-          // TODO: 成功 更新余额
           console.log(res);
           setTimeout(() => {
             // // 获取帐号余额
@@ -119,6 +147,8 @@ export default {
           }, 1200);
         } catch (error) {
           alert(JSON.stringify(error));
+        } finally {
+          this.$store.commit("setLoadingShow", { loadingShow: false });
         }
       }
     },
@@ -151,20 +181,152 @@ export default {
         this.withdrawAcount = toFixed(balance);
       }
     }
+  },
+  filters: {
+    getAssertCount(str) {
+      try {
+        return Number(str.split(" ")[0]);
+      } catch (error) {
+        return 0;
+      }
+    }
   }
 };
 </script>
 
 <style lang="less" scoped>
+.fund {
+  .container {
+    padding: 0 15px;
+  }
+}
 .button-group {
-  .active {
-    color: red;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0;
+  .button {
+    font-size: 16px;
+    color: #323232;
+    text-align: center;
+    width: 165px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 5px;
+    &.active {
+      background: rgba(62, 104, 143, 0.05);
+      border: 1px solid #3e688f;
+      border-radius: 5px;
+      color: #3e688f;
+    }
+  }
+}
+
+.info-container {
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 0 #e8e8e8, inset 0 0 0 0 #e8e8e8;
+  display: flex;
+  flex-direction: column;
+
+  .balance,
+  .deposit,
+  .withdraw {
+    padding: 15px 0;
+    display: flex;
+    justify-content: space-between;
+    margin: 0 15px;
+    .title {
+      align-self: center;
+    }
+    .unit {
+      font-size: 16px;
+      color: #323232;
+      text-align: right;
+      line-height: 24px;
+      margin-left: 0.5ch;
+    }
+    &:last-child {
+      border-bottom: 0;
+    }
+    border-bottom: 1px solid #e8e8e8;
+    h1 {
+      font-size: 14px;
+      color: #888888;
+      line-height: 22px;
+    }
+    input {
+      font-family: "MarkPro-Medium";
+      text-align: right;
+      margin-bottom: 15px;
+      width: 192px;
+      height: 44px;
+      border: none;
+      background: #f5f5f5;
+      border-radius: 5px;
+      appearance: none;
+      color: #323232;
+      font-size: 20px;
+      line-height: 24px;
+      padding-right: 15px;
+
+      &::placeholder {
+        font-family: "MarkPro-Medium";
+        font-size: 20px;
+        line-height: 24px;
+        color: #aaaaaa;
+      }
+    }
+    .number-medium {
+      font-size: 18px;
+      color: #323232;
+      text-align: right;
+      line-height: 24px;
+    }
+  }
+  .quick-button-group {
+    display: flex;
+    justify-content: space-between;
+    .quick-button {
+      font-family: "MarkPro";
+      font-size: 14px;
+      color: #3e688f;
+      letter-spacing: 0;
+      text-align: center;
+      border: 1px solid #cccccc;
+      border-radius: 2px;
+      width: 52px;
+      padding: 3px 0;
+      .touchable();
+    }
   }
 }
 
 .button-confirm {
+  margin: 30px 0;
+  background: #4a4a4a;
+  border-radius: 2px;
   text-align: center;
   font-size: 18px;
   width: 100%;
+  height: 44px;
+  line-height: 44px;
+  font-size: 17px;
+  color: #ffffff;
+}
+
+.notes {
+  font-size: 12px;
+  color: #888888;
+  line-height: 20px;
+}
+
+.touchable {
+  &:active {
+    opacity: 0.7;
+  }
 }
 </style>

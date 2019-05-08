@@ -69,13 +69,13 @@
           <div class="title">当前帐号</div>
           <span class="number-medium" v-if="account">{{ account.name }}</span>
         </div>
-        <div class="info-wrapper">
+        <div class="info-wrapper" v-if="rexBalance">
           <div class="title">REX余额</div>
-          <span class="number-medium" v-if="rexBalance">{{
+          <span class="number-medium">{{
             rexBalance | formatAssert({ symbol: "REX" })
           }}</span>
         </div>
-        <div class="info-wrapper">
+        <div class="info-wrapper" v-if="rexBalance">
           <div class="title">REX 对应价值</div>
           <span class="number-medium" v-if="rexValue">{{
             rexValue | formatAssert({ decimal: 4 })
@@ -120,11 +120,11 @@
             </template>
           </div>
         </div>
-        <div class="card small item  touchable">
+        <div class="card small item  touchable" v-if="false">
           <div class="title">租赁记录</div>
           <div class="nav number-medium"></div>
         </div>
-        <div class="card small item  touchable">
+        <div class="card small item  touchable" v-if="false">
           <div class="title">待成交订单(sell queue)</div>
           <div class="nav number-medium">无</div>
         </div>
