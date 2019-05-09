@@ -17,7 +17,8 @@ npm run serve
 ```
 npm run build
 
-rsync -rave 'ssh -i ~/.ssh/shennong.pem' ./dist/* root@47.244.36.158:/data/www/
+rsync -rave 'ssh -i ~/.ssh/meet-h5.pem' ./dist/* root@47.106.150.99:/var/www/meet-h5/pure-static/rex/
+
 ```
 
 ### Run your tests
