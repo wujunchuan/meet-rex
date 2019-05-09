@@ -59,6 +59,13 @@ module.exports = {
           }
           return source;
         }
+      },
+      {
+        name: "i18n",
+        // vuxStaticReplace: true,
+        // staticReplace: true,
+        // extractToFiles: "src/locales/components.yml",
+        localeList: ["en", "zh-CN"]
       }
     ];
     require("vux-loader").merge(config, {

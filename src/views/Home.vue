@@ -1,10 +1,14 @@
 <template>
   <div class="home">
+    <!-- 切换语系 -->
+    <div class="locale" @click="handleLocale">
+      {{ $i18n.locale() === "zh-CN" ? "En" : "中" }}
+    </div>
     <div class="header">
       <div class="profits-container">
         <div class="profits" @click="isShowQA = true">
           <span class="title touchable">
-            7日年化收益率
+            {{ $t("profit_7") }}
           </span>
           <div class="question touchable">
             <img src="../assets/icon-question.png" alt="" />
@@ -27,7 +31,7 @@
         <!-- 租赁比 -->
         <div class="percentage">
           <span class="title"
-            >已租赁资源/资金池总量（{{ lentableRate | toFixed }}%）</span
+            >{{ $t("percentage") }}（{{ lentableRate | toFixed }}%）</span
           >
           <vux-progress
             class="vux-progress"
@@ -42,19 +46,19 @@
         <!-- 收入来源 -->
         <div class="income-from">
           <div class="fee-wrapper">
-            <div class="title">租赁收入</div>
+            <div class="title">{{ $t("rent-income") }}</div>
             <div class="fee number-medium">
               {{ rentFee | toFixed | comma }} EOS
             </div>
           </div>
           <div class="fee-wrapper">
-            <div class="title">帐号拍卖收入</div>
+            <div class="title">{{ $t("name-income") }}</div>
             <div class="fee number-medium">
               {{ nameFee | toFixed | comma }} EOS
             </div>
           </div>
           <div class="fee-wrapper">
-            <div class="title">RAM 手续费收入</div>
+            <div class="title">{{ $t("ram-income") }}</div>
             <div class="fee number-medium">
               {{ ramFee | toFixed | comma }} EOS
             </div>
@@ -66,17 +70,17 @@
     <div class="main">
       <div class="card">
         <div class="info-wrapper">
-          <div class="title">当前帐号</div>
+          <div class="title">{{ $t("current-account") }}</div>
           <span class="number-medium" v-if="account">{{ account.name }}</span>
         </div>
         <div class="info-wrapper" v-if="rexBalance">
-          <div class="title">REX余额</div>
+          <div class="title">{{ $t("rex-balance") }}</div>
           <span class="number-medium">{{
             rexBalance | formatAssert({ symbol: "REX" })
           }}</span>
         </div>
         <div class="info-wrapper" v-if="rexBalance">
-          <div class="title">REX 对应价值</div>
+          <div class="title">{{ $t("rex-values") }}</div>
           <span class="number-medium" v-if="rexValue">{{
             rexValue | formatAssert({ decimal: 4 })
           }}</span>
@@ -84,14 +88,14 @@
       </div>
       <div class="form-container">
         <div class="card card-half touchable" @click="navto('lent')">
-          <div class="title">REX价格</div>
+          <div class="title">{{ $t("rex-price") }}</div>
           <span class="price number-medium">{{ rexRate }}</span>
-          <div class="nav">买卖REX</div>
+          <div class="nav">{{ $t("buy-sell-rex") }}</div>
         </div>
         <div class="card card-half touchable" @click="navto('rent')">
-          <div class="title">资源价格</div>
+          <div class="title">{{ $t("resource-price") }}</div>
           <span class="price number-medium">{{ rentRate }}</span>
-          <div class="nav">租赁资源</div>
+          <div class="nav">{{ $t("rent-resource") }}</div>
         </div>
         <div class="card card-half touchable" v-if="false">
           <div class="title">REX池余额</div>
@@ -110,13 +114,13 @@
           class="card small item touchable"
           @click="$router.push({ name: 'fund' })"
         >
-          <div class="title">REX 备用金</div>
+          <div class="title">{{ $t("rex-fund") }}</div>
           <div class="nav number-medium">
             <template v-if="rexFund">
               {{ rexFund.balance }}
             </template>
             <template v-else>
-              无
+              {{ $t("is-null") }}
             </template>
           </div>
         </div>
@@ -131,13 +135,16 @@
       </div>
     </div>
     <div class="custom-alert" v-transfer-dom>
-      <alert v-model="isShowQA" :button-text="'知道了'" :title="'年化说明'">
+      <alert
+        v-model="isShowQA"
+        :button-text="$t('got-it')"
+        :title="$t('description')"
+      >
         <div class="detail">
-          7日年化收益率 = (今日REX价格 / 7日前REX价格 - 1) / 7 x 365
+          {{ $t("description-detail") }}
         </div>
         <div class="notes">
-          7日年化收益率，根据当日前 7 日内
-          REX价格变化计算得出。不能代表未来收入，仅供参考。
+          {{ $t("description-notes") }}
         </div>
       </alert>
     </div>
@@ -314,6 +321,14 @@ export default {
     ])
   },
   methods: {
+    handleLocale() {
+      const locale = this.$i18n.locale();
+      if (locale === "zh-CN") {
+        this.$i18n.set("en");
+      } else {
+        this.$i18n.set("zh-CN");
+      }
+    },
     navto(target = "rent") {
       if (!(window.scatter && window.scatter.isInject)) {
         window.location.href = "https://m.oheos.com/download/?source=theme";
@@ -554,5 +569,13 @@ export default {
     text-align: justify;
     font-size: 10px;
   }
+}
+
+.locale {
+  position: absolute;
+  font-size: 15px;
+  color: #fff;
+  top: 15px;
+  right: 20px;
 }
 </style>

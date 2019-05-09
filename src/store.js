@@ -13,8 +13,12 @@ const requiredFields = { accounts: [network] };
 Vue.use(Vuex);
 
 // import { toFixed } from "./util";
+import vuexI18n from "vuex-i18n";
 
 export default new Vuex.Store({
+  modules: {
+    i18n: vuexI18n.store
+  },
   state: {
     account: null, // 当前账号名(Scatter获取)
     scatter: null, // Global Scatter Object

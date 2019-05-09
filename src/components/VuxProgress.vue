@@ -17,15 +17,11 @@ export default {
       default: 0
     }
   },
-  created() {},
-  mounted() {
-    setTimeout(() => {
+  watch: {
+    percent(val) {
       let bar = this.$refs["bar"];
-      // if (this.percent < 5) {
-      //   this.percent = 50;
-      // }
-      bar.style.width = this.percent + "%";
-    }, 10);
+      bar.style.width = val + "%";
+    }
   }
 };
 </script>

@@ -5,7 +5,7 @@
     </keep-alive>
     <!-- Loading -->
     <div v-transfer-dom>
-      <loading :show="loadingShow" text="Loading"></loading>
+      <loading :show="loadingShow" :text="'Loading'"></loading>
     </div>
   </div>
 </template>

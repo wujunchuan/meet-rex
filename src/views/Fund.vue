@@ -7,28 +7,28 @@
           class="button"
           :class="mode === 'deposit' ? 'active' : null"
         >
-          存入
+          {{ $t("deposit") }}
         </div>
         <div
           @click="mode = 'withdraw'"
           class="button"
           :class="mode === 'withdraw' ? 'active' : null"
         >
-          取出
+          {{ $t("withdraw") }}
         </div>
       </div>
     </div>
     <div class="info-container">
       <!-- Fund balance -->
       <div class="balance">
-        <h1 class="title">备用金余额</h1>
+        <h1 class="title">{{ $t("fund-balance") }}</h1>
         <div class="number-medium">
           {{ rexFund && rexFund.balance }}
         </div>
       </div>
       <!-- 存入 -->
       <div class="deposit" v-if="mode === 'deposit'">
-        <h1 class="title">存入金额</h1>
+        <h1 class="title">{{ $t("deposit-amount") }}</h1>
         <div>
           <input
             v-model.number.trim="depositAcount"
@@ -47,7 +47,7 @@
       </div>
       <!-- 取出 -->
       <div class="withdraw" v-if="mode === 'withdraw'">
-        <h1 class="title">取出金额</h1>
+        <h1 class="title">{{ $t("withdraw-amount") }}</h1>
         <div>
           <input
             v-model.number.trim="withdrawAcount"
@@ -68,18 +68,20 @@
 
     <div class="container">
       <div class="button-confirm touchable" @click="pushTransaction">
-        确认{{ mode === "deposit" ? "存入" : "取出" }}
+        {{
+          mode === "deposit" ? $t("deposit-confirm") : $t("withdraw-confirm")
+        }}
       </div>
     </div>
 
     <div class="container">
       <div class="notes">
-        注意：
+        {{ $t("notice") }}
         <li>
-          REX 备用金内 EOS 可以用于购买 REX，续租资源等
+          {{ $t("rex-notice-0") }}
         </li>
         <li>
-          REX 备用金不产生收益，建议直接使用 buy/sell REX 功能
+          {{ $t("rex-notice-1") }}
         </li>
       </div>
     </div>
