@@ -46,6 +46,7 @@ export default {
           // 获取当前帐号, 重要,否则后续操作无法完成,因此要阻塞掉
           // 如果是在MEETONE客户端内，尝试自动登录
           if (window.scatter.isInject) {
+            this.$store.commit("setIsInject", { isInject: true });
             try {
               await this.$store.dispatch("login");
             } catch (error) {

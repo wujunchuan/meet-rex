@@ -30,11 +30,14 @@ export default new Vuex.Store({
     rexPool: null,
     rexBal: null,
     rexProfits: null,
-    rexFund: null
+    rexFund: null,
+    isInject: false
   },
   mutations: {
+    setIsInject(state, payload) {
+      state.isInject = payload.isInject;
+    },
     setRexFund(state, payload) {
-      console.log(payload);
       state.rexFund = payload.rexFund;
     },
     setLiquidBalance(state, payload) {

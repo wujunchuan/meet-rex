@@ -4,7 +4,7 @@
     <div class="locale" @click="handleLocale">
       {{ $i18n.locale() === "zh-CN" ? "En" : "中文" }}
     </div>
-    <div class="entry">
+    <div class="entry" v-if="!isInject">
       <span v-if="account" class="logout" @click="logout">{{
         $t("logout")
       }}</span>
@@ -323,6 +323,7 @@ export default {
       return getAssertCount(this.rexProfits.ramfee);
     },
     ...mapState([
+      "isInject",
       "account",
       "liquidBalance",
       "rexPool",
