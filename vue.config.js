@@ -68,7 +68,7 @@ module.exports = {
     });
   },
 
-  publicPath: "/",
+  publicPath: "/rex",
   outputDir: undefined,
   assetsDir: undefined,
   runtimeCompiler: undefined,

@@ -7,9 +7,9 @@
  */
 export default {
   blockchain: "eos",
-  protocol: "http",
-  host: "47.107.25.120",
-  port: 80,
+  protocol: "https",
+  host: "api.eosbeijing.one",
+  port: 443,
   chainId: "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906"
   // keyProvider: '5JzMEDg4eERRvY6sHiXWuw1vNgR1tj3afBAfYYR5rHonDsdLDRF'
 };
