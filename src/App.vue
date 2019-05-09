@@ -39,19 +39,19 @@ export default {
       } else {
         try {
           window.clearInterval(this.intervalId);
-          // 获取当前帐号
-          await this.$store.dispatch("getIdentity");
           try {
-            // // 获取帐号余额
-            this.$store.dispatch("getAccountBalance");
             // 获取rexpool信息
             this.$store.dispatch("getRexPool");
-            // 获取rexbal信息
-            this.$store.dispatch("getRexBal");
-            // 获取rexfund信息
-            this.$store.dispatch("getRexFund");
             // 获取REX收益来源
             this.$store.dispatch("getRexProfits");
+            // 获取当前帐号, 重要,否则后续操作无法完成,因此要阻塞掉
+            await this.$store.dispatch("getIdentity");
+            // 获取rexbal信息
+            this.$store.dispatch("getRexBal");
+            // // 获取帐号余额
+            this.$store.dispatch("getAccountBalance");
+            // 获取rexfund信息
+            this.$store.dispatch("getRexFund");
           } catch (error) {
             console.log("error for request data");
           }

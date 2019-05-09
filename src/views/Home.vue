@@ -23,7 +23,7 @@
           auto-resize
         ></chart>
       </div>
-      <div class="infomation" v-if="rexPool">
+      <div class="infomation">
         <!-- 租赁比 -->
         <div class="percentage">
           <span class="title"
@@ -34,8 +34,8 @@
             :percent="lentableRate"
           ></vux-progress>
           <div class="percentage-detail number-medium">
-            {{ rexPool.total_lent | toFixed | comma }} /
-            {{ rexPool.total_lendable | toFixed | comma }} EOS
+            {{ rexPool && rexPool.total_lent | toFixed | comma }} /
+            {{ rexPool && rexPool.total_lendable | toFixed | comma }} EOS
           </div>
         </div>
 
