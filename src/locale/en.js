@@ -1,4 +1,6 @@
 module.exports = {
+  login: "Login",
+  logout: "Logout",
   profit_7: "7-day annual rate return",
   description: "Description",
   "description-detail":

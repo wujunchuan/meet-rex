@@ -1,4 +1,6 @@
 module.exports = {
+  login: "登录",
+  logout: "退出",
   profit_7: "7日年化收益率",
   description: "年化说明",
   "description-detail":

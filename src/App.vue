@@ -33,30 +33,27 @@ export default {
     await this.$store.dispatch("initScatter");
   },
   mounted() {
+    // 获取rexpool信息
+    this.$store.dispatch("getRexPool");
+    // 获取REX收益来源
+    this.$store.dispatch("getRexProfits");
     this.intervalId = window.setInterval(async () => {
       if (!this.scatter) {
         return;
       } else {
+        window.clearInterval(this.intervalId);
         try {
-          window.clearInterval(this.intervalId);
-          try {
-            // 获取rexpool信息
-            this.$store.dispatch("getRexPool");
-            // 获取REX收益来源
-            this.$store.dispatch("getRexProfits");
-            // 获取当前帐号, 重要,否则后续操作无法完成,因此要阻塞掉
-            await this.$store.dispatch("getIdentity");
-            // 获取rexbal信息
-            this.$store.dispatch("getRexBal");
-            // // 获取帐号余额
-            this.$store.dispatch("getAccountBalance");
-            // 获取rexfund信息
-            this.$store.dispatch("getRexFund");
-          } catch (error) {
-            console.log("error for request data");
+          // 获取当前帐号, 重要,否则后续操作无法完成,因此要阻塞掉
+          // 如果是在MEETONE客户端内，尝试自动登录
+          if (window.scatter.isInject) {
+            try {
+              await this.$store.dispatch("login");
+            } catch (error) {
+              alert("Login failed");
+            }
           }
-        } finally {
-          this.$store.commit("setLoadingShow", { loadingShow: false });
+        } catch (error) {
+          console.log("error for request data");
         }
       }
     }, 100);

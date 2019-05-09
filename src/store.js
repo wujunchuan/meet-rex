@@ -22,8 +22,10 @@ export default new Vuex.Store({
   state: {
     account: null, // 当前账号名(Scatter获取)
     scatter: null, // Global Scatter Object
-    eos: null, // Global Eos Obj
-    loadingShow: true, // Loading status
+    eos: Eos({
+      httpEndpoint: `${_network.protocol}://${_network.host}:${_network.port}`
+    }), // Global Eos Obj
+    loadingShow: false, // Loading status
     liquidBalance: 0,
     rexPool: null,
     rexBal: null,
@@ -61,6 +63,26 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    // 退出登录
+    logout({ state, commit }) {
+      state.scatter.logout();
+      commit("setLiquidBalance", { liquidBalance: null });
+      commit("setAccount", { account: null });
+      commit("setRexBal", { account: null });
+    },
+    login({ commit, dispatch }) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          await dispatch("getIdentity");
+          commit("setLoadingShow", { loadingShow: false });
+          resolve();
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject();
+        }
+      });
+    },
     // 初始化 Scatter
     initScatter({ commit, state }) {
       return new Promise(async (resolve, reject) => {
@@ -124,6 +146,12 @@ export default new Vuex.Store({
               x => x.blockchain === "eos"
             );
             commit("setAccount", { account });
+            // 获取rexbal信息
+            dispatch("getRexBal");
+            // // 获取帐号余额
+            dispatch("getAccountBalance");
+            // 获取rexfund信息
+            dispatch("getRexFund");
             resolve();
           } else {
             reject();
@@ -161,26 +189,21 @@ export default new Vuex.Store({
       });
     },
     // 获取rexpool信息
-    getRexPool({ commit, state, dispatch }) {
+    getRexPool({ commit, state }) {
       return new Promise(async (resolve, reject) => {
-        await dispatch("initScatter");
         try {
-          if (state.scatter) {
-            let res = await state.eos.getTableRows({
-              code: "eosio",
-              json: true,
-              scope: "eosio",
-              table: "rexpool"
-            });
-            if (res.rows && res.rows.length) {
-              let rexPool = res.rows[0];
-              resolve(rexPool);
-              commit("setRexPool", { rexPool });
-            }
-            resolve();
-          } else {
-            reject();
+          let res = await state.eos.getTableRows({
+            code: "eosio",
+            json: true,
+            scope: "eosio",
+            table: "rexpool"
+          });
+          if (res.rows && res.rows.length) {
+            let rexPool = res.rows[0];
+            resolve(rexPool);
+            commit("setRexPool", { rexPool });
           }
+          resolve();
         } catch (error) {
           reject(error);
         }

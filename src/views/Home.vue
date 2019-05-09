@@ -2,7 +2,13 @@
   <div class="home">
     <!-- 切换语系 -->
     <div class="locale" @click="handleLocale">
-      {{ $i18n.locale() === "zh-CN" ? "En" : "中" }}
+      {{ $i18n.locale() === "zh-CN" ? "En" : "中文" }}
+    </div>
+    <div class="entry">
+      <span v-if="account" class="logout" @click="logout">{{
+        $t("logout")
+      }}</span>
+      <span v-else class="login" @click="login">{{ $t("login") }}</span>
     </div>
     <div class="header">
       <div class="profits-container">
@@ -68,10 +74,14 @@
     </div>
 
     <div class="main">
-      <div class="card">
+      <div class="card" v-if="account">
         <div class="info-wrapper">
           <div class="title">{{ $t("current-account") }}</div>
-          <span class="number-medium" v-if="account">{{ account.name }}</span>
+          <template v-if="account">
+            <span class="number-medium">
+              {{ account.name }}
+            </span>
+          </template>
         </div>
         <div class="info-wrapper" v-if="rexBalance">
           <div class="title">{{ $t("rex-balance") }}</div>
@@ -111,6 +121,7 @@
 
       <div class="form-container full">
         <div
+          v-if="account"
           class="card small item touchable"
           @click="$router.push({ name: 'fund' })"
         >
@@ -321,6 +332,16 @@ export default {
     ])
   },
   methods: {
+    logout() {
+      this.$store.dispatch("logout");
+    },
+    async login() {
+      try {
+        await this.$store.dispatch("login");
+      } catch (error) {
+        alert("Login failed");
+      }
+    },
     handleLocale() {
       const locale = this.$i18n.locale();
       if (locale === "zh-CN") {
@@ -572,6 +593,13 @@ export default {
 }
 
 .locale {
+  position: absolute;
+  font-size: 15px;
+  color: #fff;
+  top: 15px;
+  left: 20px;
+}
+.entry {
   position: absolute;
   font-size: 15px;
   color: #fff;
