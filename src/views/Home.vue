@@ -54,7 +54,7 @@
             </div>
           </div>
           <div class="fee-wrapper">
-            <div class="title">RAMfee</div>
+            <div class="title">RAM 手续费收入</div>
             <div class="fee number-medium">
               {{ ramFee | toFixed | comma }} EOS
             </div>
@@ -110,7 +110,7 @@
           class="card small item touchable"
           @click="$router.push({ name: 'fund' })"
         >
-          <div class="title">REX fund</div>
+          <div class="title">REX 备用金</div>
           <div class="nav number-medium">
             <template v-if="rexFund">
               {{ rexFund.balance }}

@@ -21,7 +21,7 @@
     <div class="info-container">
       <!-- Fund balance -->
       <div class="balance">
-        <h1 class="title">资金池余额</h1>
+        <h1 class="title">备用金余额</h1>
         <div class="number-medium">
           {{ rexFund && rexFund.balance }}
         </div>
@@ -74,14 +74,28 @@
 
     <div class="container">
       <div class="notes">
-        注意：<br />
-        REX 资金池内 EOS 不产生收益，建议直接使用 buy/sell REX 功能。
+        注意：
+        <li>
+          REX 备用金内 EOS 可以用于购买 REX，续租资源等
+        </li>
+        <li>
+          REX 备用金不产生收益，建议直接使用 buy/sell REX 功能
+        </li>
       </div>
     </div>
+    <toast v-model="showToast" type="text" text="交易成功">交易成功</toast>
+    <toast
+      width="10em"
+      v-model="numberFailedToast"
+      type="text"
+      text="金额填写错误"
+      >金额填写错误</toast
+    >
   </div>
 </template>
 <script>
 import { mapState } from "vuex";
+import { Toast } from "vux";
 import {
   getAssertCount,
   toFixed,
@@ -90,11 +104,16 @@ import {
 } from "../util";
 export default {
   name: "fund",
+  components: {
+    Toast
+  },
   computed: {
     ...mapState(["rexFund", "liquidBalance", "eos", "account"])
   },
   data() {
     return {
+      showToast: false,
+      numberFailedToast: false,
       mode: "deposit",
       depositAcount: null,
       withdrawAcount: null
@@ -105,7 +124,10 @@ export default {
     async pushTransaction() {
       const account = this.account;
       if (this.mode === "deposit") {
-        if (this.depositAcount <= 0) return;
+        if (this.depositAcount < 0.0001) {
+          this.numberFailedToast = true;
+          return;
+        }
         let amount = toAssertSymbol(this.depositAcount);
         try {
           this.$store.commit("setLoadingShow", { loadingShow: true });
@@ -115,6 +137,7 @@ export default {
                 account.name + "@" + getPermission(account.authority)
             });
           });
+          this.showToast = true;
           console.log(res);
           setTimeout(() => {
             // // 获取帐号余额
@@ -128,7 +151,10 @@ export default {
           this.$store.commit("setLoadingShow", { loadingShow: false });
         }
       } else {
-        if (this.withdrawAcount <= 0) return;
+        if (this.depositAcount < 0.0001) {
+          this.numberFailedToast = true;
+          return;
+        }
         let amount = toAssertSymbol(this.withdrawAcount);
         try {
           this.$store.commit("setLoadingShow", { loadingShow: true });
@@ -138,6 +164,7 @@ export default {
                 account.name + "@" + getPermission(account.authority)
             });
           });
+          this.showToast = true;
           console.log(res);
           setTimeout(() => {
             // // 获取帐号余额
@@ -321,7 +348,14 @@ export default {
 .notes {
   font-size: 12px;
   color: #888888;
-  line-height: 20px;
+  line-height: 22px;
+  li {
+    list-style: none;
+    &::before {
+      padding: 0 5px;
+      content: "-";
+    }
+  }
 }
 
 .touchable {
