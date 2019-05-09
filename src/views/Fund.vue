@@ -83,19 +83,10 @@
         </li>
       </div>
     </div>
-    <toast v-model="showToast" type="text" text="交易成功">交易成功</toast>
-    <toast
-      width="10em"
-      v-model="numberFailedToast"
-      type="text"
-      text="金额填写错误"
-      >金额填写错误</toast
-    >
   </div>
 </template>
 <script>
 import { mapState } from "vuex";
-import { Toast } from "vux";
 import {
   getAssertCount,
   toFixed,
@@ -104,16 +95,11 @@ import {
 } from "../util";
 export default {
   name: "fund",
-  components: {
-    Toast
-  },
   computed: {
     ...mapState(["rexFund", "liquidBalance", "eos", "account"])
   },
   data() {
     return {
-      showToast: false,
-      numberFailedToast: false,
       mode: "deposit",
       depositAcount: null,
       withdrawAcount: null
@@ -125,7 +111,9 @@ export default {
       const account = this.account;
       if (this.mode === "deposit") {
         if (this.depositAcount < 0.0001) {
-          this.numberFailedToast = true;
+          this.$vux.toast.show({
+            text: "金额填写错误"
+          });
           return;
         }
         let amount = toAssertSymbol(this.depositAcount);
@@ -137,7 +125,9 @@ export default {
                 account.name + "@" + getPermission(account.authority)
             });
           });
-          this.showToast = true;
+          this.$vux.toast.show({
+            text: "交易成功"
+          });
           console.log(res);
           setTimeout(() => {
             // // 获取帐号余额
@@ -152,7 +142,9 @@ export default {
         }
       } else {
         if (this.depositAcount < 0.0001) {
-          this.numberFailedToast = true;
+          this.$vux.toast.show({
+            text: "金额填写错误"
+          });
           return;
         }
         let amount = toAssertSymbol(this.withdrawAcount);
@@ -164,7 +156,9 @@ export default {
                 account.name + "@" + getPermission(account.authority)
             });
           });
-          this.showToast = true;
+          this.$vux.toast.show({
+            text: "交易成功"
+          });
           console.log(res);
           setTimeout(() => {
             // // 获取帐号余额
