@@ -83,15 +83,15 @@
             </span>
           </template>
         </div>
-        <div class="info-wrapper" v-if="rexBalance">
+        <div class="info-wrapper">
           <div class="title">{{ $t("rex-balance") }}</div>
           <span class="number-medium">{{
             rexBalance | formatAssert({ symbol: "REX" })
           }}</span>
         </div>
-        <div class="info-wrapper" v-if="rexBalance">
+        <div class="info-wrapper">
           <div class="title">{{ $t("rex-values") }}</div>
-          <span class="number-medium" v-if="rexValue">{{
+          <span class="number-medium">{{
             rexValue | formatAssert({ decimal: 4 })
           }}</span>
         </div>

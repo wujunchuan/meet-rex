@@ -120,22 +120,26 @@ export default new Vuex.Store({
     },
     // 获取帐号的可用余额
     getAccountBalance({ commit, state, dispatch }) {
-      return new Promise(async resolve => {
+      return new Promise(async (resolve, reject) => {
         await dispatch("initScatter");
-        let res = await state.eos.getTableRows({
-          json: true, // Get the response as json
-          code: "eosio.token", // Contract that we target
-          scope: state.account.name, // Account that owns the data
-          table: "accounts", // Table name
-          limit: 10 // maximum number of rows that we want to get
-        });
-        if (res.rows && res.rows.length) {
-          let liquidBalance = res.rows[0].balance.split(" ")[0];
-          // 格式 1.234
-          resolve(liquidBalance);
-          commit("setLiquidBalance", { liquidBalance });
+        try {
+          let res = await state.eos.getTableRows({
+            json: true, // Get the response as json
+            code: "eosio.token", // Contract that we target
+            scope: " " + state.account.name, // Account that owns the data
+            table: "accounts", // Table name
+            limit: 10 // maximum number of rows that we want to get
+          });
+          if (res.rows && res.rows.length) {
+            let liquidBalance = res.rows[0].balance.split(" ")[0];
+            // 格式 1.234
+            resolve(liquidBalance);
+            commit("setLiquidBalance", { liquidBalance });
+          }
+          resolve();
+        } catch (error) {
+          reject(error);
         }
-        resolve();
       });
     },
     // 获取当前帐号
@@ -173,16 +177,17 @@ export default new Vuex.Store({
               code: "eosio",
               json: true,
               limit: 1,
-              lower_bound: state.account.name,
+              lower_bound: " " + state.account.name,
               scope: "eosio",
               table: "rexbal",
-              upper_bound: state.account.name
+              upper_bound: " " + state.account.name
             });
             if (res.rows && res.rows.length) {
               let rexBal = res.rows[0];
               resolve(rexBal);
               commit("setRexBal", { rexBal });
             }
+            resolve();
           } else {
             reject();
           }
@@ -239,8 +244,8 @@ export default new Vuex.Store({
               scope: "eosio",
               table: "rexfund",
               table_key: "",
-              lower_bound: state.account.name,
-              upper_bound: state.account.name,
+              lower_bound: " " + state.account.name,
+              upper_bound: " " + state.account.name,
               limit: 1
             });
             if (res.rows && res.rows.length) {

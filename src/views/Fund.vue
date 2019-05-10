@@ -23,7 +23,12 @@
       <div class="balance">
         <h1 class="title">{{ $t("fund-balance") }}</h1>
         <div class="number-medium">
-          {{ rexFund && rexFund.balance }}
+          <template v-if="rexFund">
+            {{ rexFund.balance }}
+          </template>
+          <template v-else>
+            {{ $t("is-null") }}
+          </template>
         </div>
       </div>
       <!-- 存入 -->

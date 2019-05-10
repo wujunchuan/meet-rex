@@ -20,7 +20,7 @@ module.exports = {
   "resource-price": "资源价格",
   "rent-resource": "租赁资源",
   "rex-fund": "REX 备用金",
-  "is-null": "0",
+  "is-null": "无",
   deposit: "存入",
   "deposit-amount": "存入金额",
   "deposit-confirm": "确认存入",
