@@ -43,15 +43,14 @@ export default {
       } else {
         window.clearInterval(this.intervalId);
         try {
-          // 获取当前帐号, 重要,否则后续操作无法完成,因此要阻塞掉
-          // 如果是在MEETONE客户端内，尝试自动登录
           if (window.scatter.isInject) {
+            // 如果是客户端内，设置全局变量 `isInject: true`
             this.$store.commit("setIsInject", { isInject: true });
-            try {
-              await this.$store.dispatch("login");
-            } catch (error) {
-              alert("Login failed");
-            }
+          }
+          try {
+            await this.$store.dispatch("login");
+          } catch (error) {
+            alert("Login failed");
           }
         } catch (error) {
           console.log("error for request data");
