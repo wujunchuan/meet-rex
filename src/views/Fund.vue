@@ -143,7 +143,7 @@ export default {
           this.$store.commit("setLoadingShow", { loadingShow: false });
         }
       } else {
-        if (this.depositAcount < 0.0001) {
+        if (this.withdrawAcount < 0.0001) {
           this.$vux.toast.show({
             text: "金额填写错误"
           });
