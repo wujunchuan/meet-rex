@@ -13,7 +13,6 @@ Vue.prototype.$http = http;
 import vuexI18n from "vuex-i18n";
 import LocalePlugin from "vux/src/plugins/locale";
 Vue.use(LocalePlugin);
-const nowLocale = Vue.locale.get();
 Vue.use(vuexI18n.plugin, store, {
   moduleName: "i18n",
   onTranslationNotFound(locale, key) {
@@ -21,12 +20,28 @@ Vue.use(vuexI18n.plugin, store, {
   }
 });
 
+/**
+ * 单页面应用中js获取url中的参数
+ * @param {String} name 需要查询的queryParams[name]
+ */
+function getQueryString(name) {
+  var reg = new RegExp("[?&]" + name + "=([^&#]*)", "i");
+  var res = window.location.href.match(reg);
+
+  if (res && res.length > 1) {
+    return decodeURIComponent(res[1]);
+  }
+  return "";
+}
+
+let lang = getQueryString("lang");
+
 Vue.i18n.add("en", require("../src/locale/en"));
 Vue.i18n.add("zh-CN", require("../src/locale/zh-CN"));
 
-if (/zh/.test(nowLocale)) {
+if (/zh/.test(lang)) {
   Vue.i18n.set("zh-CN");
-} else if (/en/.test(nowLocale)) {
+} else if (/en/.test(lang)) {
   Vue.i18n.set("en");
 } else {
   Vue.i18n.set("en");
