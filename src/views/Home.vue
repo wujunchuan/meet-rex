@@ -388,11 +388,19 @@ export default {
 <style lang="less" scoped>
 .header {
   padding: 15px 15px 12px;
-  background-color: #548abb;
-  background-size: 100% 80%;
-  background-position: contain;
-  background-image: url("../assets/bg-header.png");
-  background-repeat: no-repeat;
+  background: #00baff; /* Old browsers */
+  background: linear-gradient(to bottom, #00baff 0%, #177cda 100%);
+  &::before {
+    content: "";
+    width: 100%;
+    height: 45%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-size: 100% 100%;
+    background-position: contain;
+    background-image: url("../assets/bg-header.png");
+  }
 
   // 七日年化收益率
   .profits-container {
@@ -599,6 +607,7 @@ export default {
   color: #fff;
   top: 15px;
   left: 20px;
+  z-index: 1;
 }
 .entry {
   position: absolute;
@@ -606,5 +615,6 @@ export default {
   color: #fff;
   top: 15px;
   right: 20px;
+  z-index: 1;
 }
 </style>

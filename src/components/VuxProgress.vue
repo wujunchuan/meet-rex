@@ -30,7 +30,8 @@ export default {
 @import "../../node_modules/vux/src/styles/weui/widget/weui_progress/weui_progress.less";
 
 .weui-progress__bar {
-  background: #6c94bb;
+  // background: #6c94bb;
+  background: #3eabed;
   border-radius: 6px;
   height: 12px;
 }
