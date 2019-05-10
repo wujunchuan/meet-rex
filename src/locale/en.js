@@ -32,5 +32,7 @@ module.exports = {
   "rex-notice-0":
     "The EOS in the REX fund only can be used to buy REX, borrow CPU/NET, etc.",
   "rex-notice-1":
-    "The EOS in the REX fund does not generate revenue. It is recommended to buy REX to get returns."
+    "The EOS in the REX fund does not generate revenue. It is recommended to buy REX to get returns.",
+  "transaction-success": "Transaction push success",
+  "amount-error": "Incorrect amount"
 };

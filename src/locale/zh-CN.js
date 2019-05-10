@@ -30,5 +30,7 @@ module.exports = {
   "fund-balance": "备用金余额",
   notice: "注意：",
   "rex-notice-0": "REX 备用金内 EOS 可以用于购买 REX，续租资源等",
-  "rex-notice-1": "REX 备用金不产生收益，建议直接使用 buy/sell REX 功能"
+  "rex-notice-1": "REX 备用金不产生收益，建议直接使用 buy/sell REX 功能",
+  "transaction-success": "交易成功",
+  "amount-error": "金额填写错误"
 };

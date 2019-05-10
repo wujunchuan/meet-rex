@@ -119,7 +119,7 @@ export default {
       if (this.mode === "deposit") {
         if (this.depositAcount < 0.0001) {
           this.$vux.toast.show({
-            text: "金额填写错误"
+            text: this.$t("amount-error")
           });
           return;
         }
@@ -133,7 +133,7 @@ export default {
             });
           });
           this.$vux.toast.show({
-            text: "交易成功"
+            text: this.$t("transaction-success")
           });
           console.log(res);
           setTimeout(() => {
@@ -150,7 +150,7 @@ export default {
       } else {
         if (this.withdrawAcount < 0.0001) {
           this.$vux.toast.show({
-            text: "金额填写错误"
+            text: this.$t("amount-error")
           });
           return;
         }
@@ -164,7 +164,7 @@ export default {
             });
           });
           this.$vux.toast.show({
-            text: "交易成功"
+            text: this.$t("transaction-success")
           });
           console.log(res);
           setTimeout(() => {

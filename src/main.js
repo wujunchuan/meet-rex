@@ -53,7 +53,7 @@ Vue.component("chart", ECharts);
 // import { LoadingPlugin } from "vux";
 // notice: 不要使用解构语法,否则打包会全部打包进去(BUG)
 import ToastPlugin from "vux/src/plugins/toast";
-Vue.use(ToastPlugin, { position: "bottom", type: "text", width: "10.6em" });
+Vue.use(ToastPlugin, { position: "bottom", type: "text", width: "14.6em" });
 
 /**
  *  移除移动端点击延迟
