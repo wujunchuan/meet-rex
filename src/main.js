@@ -81,9 +81,9 @@ Vue.config.productionTip = false;
 if (process.env.NODE_ENV === "development") {
   // Only the development env will dynamic import
   Vue.config.productionTip = true;
-  import("eruda").then(module => {
-    module.default.init();
-  });
+  // import("eruda").then(module => {
+  //   module.default.init();
+  // });
 }
 
 // import moment from "moment";

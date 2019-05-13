@@ -34,5 +34,14 @@ module.exports = {
   "rex-notice-1":
     "The EOS in the REX fund does not generate revenue. It is recommended to buy REX to get returns.",
   "transaction-success": "Transaction push success",
-  "amount-error": "Incorrect amount"
+  "amount-error": "Incorrect amount",
+  lock: "MOVE TO",
+  unlock: "MOVE FROM",
+  lock_account: "REX In Savings",
+  lock_amount: "Amount",
+  unlock_amount: "Amount",
+  confirm_lock: "Move To Savings",
+  confirm_unlock: "Move From Savings",
+  "saving-notice-0":
+    "Moving REX from rex saving need to wait for 5 days. If you want to hold REX, it's better moving to rex saving."
 };

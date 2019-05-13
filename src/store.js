@@ -15,6 +15,8 @@ Vue.use(Vuex);
 // import { toFixed } from "./util";
 import vuexI18n from "vuex-i18n";
 
+import { getPermission } from "./util";
+
 export default new Vuex.Store({
   modules: {
     i18n: vuexI18n.store
@@ -66,6 +68,59 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    // assert: `0.00001 REX`
+    mvtosavings({ state, commit, dispatch }, { assert } = {}) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let res = await state.eos.contract("eosio").then(contract => {
+            return contract.mvtosavings(account.name, assert, {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            });
+          });
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+          setTimeout(() => {
+            dispatch("getRexBal");
+          }, 1000);
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+      // mv rex to savings
+      // owner - name
+      // assert - asset
+    },
+    mvfrsavings({ state, commit, dispatch }, { assert } = {}) {
+      console.log(assert);
+      // // mv rex from savings
+      // owner - name
+      // assert - asset
+      return new Promise(async (resolve, reject) => {
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let res = await state.eos.contract("eosio").then(contract => {
+            return contract.mvfrsavings(account.name, assert, {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            });
+          });
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+          setTimeout(() => {
+            dispatch("getRexBal");
+          }, 1000);
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+    },
+
     // 退出登录
     logout({ state, commit }) {
       state.scatter.logout();

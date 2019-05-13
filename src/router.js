@@ -23,6 +23,11 @@ export default new Router({
       path: "/fund",
       name: "fund",
       component: () => import("./views/Fund.vue")
+    },
+    {
+      path: "/savings",
+      name: "savings",
+      component: () => import("./views/Savings.vue")
     }
   ]
 });
