@@ -33,14 +33,14 @@ module.exports = {
   "rex-notice-1": "REX 备用金不产生收益，建议直接使用 buy/sell REX 功能",
   "transaction-success": "交易成功",
   "amount-error": "金额填写错误",
-  "rex-savings": "REX 锁仓",
-  lock: "锁定",
-  unlock: "解锁",
-  lock_account: "锁仓数量",
-  lock_amount: "锁定金额",
-  unlock_amount: "解锁金额",
-  confirm_lock: "确定锁定",
-  confirm_unlock: "确定解锁",
+  "rex-savings": "REX 储蓄桶",
+  lock: "转入",
+  unlock: "转出",
+  lock_account: "储蓄桶金额",
+  lock_amount: "存入金额",
+  unlock_amount: "转出金额",
+  confirm_lock: "确定存入",
+  confirm_unlock: "确定转出",
   "saving-notice-0":
-    "REX锁仓后，解锁时需要等待5天。如果需要长期持有REX，建议进行锁仓操作。"
+    "存入REX储蓄桶后，解锁时需要等待5天。如果需要长期持有REX，建议进行转入操作。"
 };
