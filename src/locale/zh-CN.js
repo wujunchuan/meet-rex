@@ -33,6 +33,7 @@ module.exports = {
   "rex-notice-1": "REX 备用金不产生收益，建议直接使用 buy/sell REX 功能",
   "transaction-success": "交易成功",
   "amount-error": "金额填写错误",
+  "rex-savings": "REX 锁仓",
   lock: "锁定",
   unlock: "解锁",
   lock_account: "锁仓数量",

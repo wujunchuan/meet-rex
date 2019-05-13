@@ -35,6 +35,7 @@ module.exports = {
     "The EOS in the REX fund does not generate revenue. It is recommended to buy REX to get returns.",
   "transaction-success": "Transaction push success",
   "amount-error": "Incorrect amount",
+  "rex-savings": "REX Savings",
   lock: "MOVE TO",
   unlock: "MOVE FROM",
   lock_account: "REX In Savings",

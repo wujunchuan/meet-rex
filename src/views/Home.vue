@@ -120,6 +120,7 @@
       </div>
 
       <div class="form-container full">
+        <!-- REX Fund -->
         <div
           v-if="account"
           class="card small item touchable"
@@ -129,6 +130,22 @@
           <div class="nav number-medium">
             <template v-if="rexFund">
               {{ rexFund.balance }}
+            </template>
+            <template v-else>
+              {{ $t("is-null") }}
+            </template>
+          </div>
+        </div>
+        <!-- Rex Savings -->
+        <div
+          v-if="account"
+          class="card small item touchable"
+          @click="$router.push({ name: 'savings' })"
+        >
+          <div class="title">{{ $t("rex-savings") }}</div>
+          <div class="nav number-medium">
+            <template v-if="unmaturedRexForever">
+              {{ unmaturedRexForever | formatAssert({ symbol: "REX" }) }}
             </template>
             <template v-else>
               {{ $t("is-null") }}
@@ -195,6 +212,30 @@ export default {
     };
   },
   computed: {
+    unmaturedRexForever() {
+      if (this.rexBal) {
+        let { rex_maturities = [] } = this.rexBal;
+        let unmaturedRexForeverIndex = rex_maturities.length - 1;
+        if (unmaturedRexForeverIndex >= 0) {
+          // 有这个记录的话
+          let maturedTime = rex_maturities[unmaturedRexForeverIndex].first;
+          // 随便取个 10天 ，反正这个时候早就他妈的matured了
+          if (
+            new Date(maturedTime).getTime() - new Date().getTime() >
+            864000000
+          ) {
+            const result =
+              rex_maturities[unmaturedRexForeverIndex].second / 10000;
+            return result;
+          }
+        }
+      }
+      // REX储蓄桶
+      return (
+        this.rexBal &&
+        this.rexBal.rex_maturities[this.rexBal.rex_maturities.length - 1]
+      );
+    },
     recentProfit() {
       // 最近七日年化
       // profit = ((lastPrice - before7Price) / before7Price / 7) * 365 * 100
