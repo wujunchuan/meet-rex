@@ -231,10 +231,7 @@ export default {
         }
       }
       // REX储蓄桶
-      return (
-        this.rexBal &&
-        this.rexBal.rex_maturities[this.rexBal.rex_maturities.length - 1]
-      );
+      return 0;
     },
     recentProfit() {
       // 最近七日年化

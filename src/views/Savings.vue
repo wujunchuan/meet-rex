@@ -122,10 +122,7 @@ export default {
         }
       }
       // REX储蓄桶
-      return (
-        this.rexBal &&
-        this.rexBal.rex_maturities[this.rexBal.rex_maturities.length - 1]
-      );
+      return 0;
     },
     maturedRex() {
       // 已经成熟的REX数量（可以出售的数量）

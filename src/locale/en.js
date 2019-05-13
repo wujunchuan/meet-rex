@@ -44,5 +44,5 @@ module.exports = {
   confirm_lock: "Move To Savings",
   confirm_unlock: "Move From Savings",
   "saving-notice-0":
-    "Moving REX from rex saving need to wait for 5 days. If you want to hold REX, it's better moving to rex saving."
+    "Moving REX from REX Savings need to wait for 5 days. If you want to hold REX, it's better moving to REX Savings."
 };
