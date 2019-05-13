@@ -5,7 +5,7 @@
     </keep-alive>
     <!-- Loading -->
     <div v-transfer-dom>
-      <loading :show="loadingShow" text="Loading"></loading>
+      <loading :show="loadingShow" :text="'Loading'"></loading>
     </div>
   </div>
 </template>
@@ -33,30 +33,27 @@ export default {
     await this.$store.dispatch("initScatter");
   },
   mounted() {
+    // 获取rexpool信息
+    this.$store.dispatch("getRexPool");
+    // 获取REX收益来源
+    this.$store.dispatch("getRexProfits");
     this.intervalId = window.setInterval(async () => {
       if (!this.scatter) {
         return;
       } else {
+        window.clearInterval(this.intervalId);
         try {
-          window.clearInterval(this.intervalId);
-          // 获取当前帐号
-          await this.$store.dispatch("getIdentity");
-          try {
-            // // 获取帐号余额
-            this.$store.dispatch("getAccountBalance");
-            // 获取rexpool信息
-            this.$store.dispatch("getRexPool");
-            // 获取rexbal信息
-            this.$store.dispatch("getRexBal");
-            // 获取rexfund信息
-            this.$store.dispatch("getRexFund");
-            // 获取REX收益来源
-            this.$store.dispatch("getRexProfits");
-          } catch (error) {
-            console.log("error for request data");
+          if (window.scatter.isInject) {
+            // 如果是客户端内，设置全局变量 `isInject: true`
+            this.$store.commit("setIsInject", { isInject: true });
           }
-        } finally {
-          this.$store.commit("setLoadingShow", { loadingShow: false });
+          try {
+            await this.$store.dispatch("login");
+          } catch (error) {
+            alert("Login failed");
+          }
+        } catch (error) {
+          console.log("error for request data");
         }
       }
     }, 100);

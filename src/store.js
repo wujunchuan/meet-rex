@@ -13,22 +13,33 @@ const requiredFields = { accounts: [network] };
 Vue.use(Vuex);
 
 // import { toFixed } from "./util";
+import vuexI18n from "vuex-i18n";
+
+import { getPermission } from "./util";
 
 export default new Vuex.Store({
+  modules: {
+    i18n: vuexI18n.store
+  },
   state: {
     account: null, // 当前账号名(Scatter获取)
     scatter: null, // Global Scatter Object
-    eos: null, // Global Eos Obj
-    loadingShow: true, // Loading status
+    eos: Eos({
+      httpEndpoint: `${_network.protocol}://${_network.host}:${_network.port}`
+    }), // Global Eos Obj
+    loadingShow: false, // Loading status
     liquidBalance: 0,
     rexPool: null,
     rexBal: null,
     rexProfits: null,
-    rexFund: null
+    rexFund: null,
+    isInject: false
   },
   mutations: {
+    setIsInject(state, payload) {
+      state.isInject = payload.isInject;
+    },
     setRexFund(state, payload) {
-      console.log(payload);
       state.rexFund = payload.rexFund;
     },
     setLiquidBalance(state, payload) {
@@ -57,6 +68,79 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    // assert: `0.00001 REX`
+    mvtosavings({ state, commit, dispatch }, { assert } = {}) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let res = await state.eos.contract("eosio").then(contract => {
+            return contract.mvtosavings(account.name, assert, {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            });
+          });
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+          setTimeout(() => {
+            dispatch("getRexBal");
+          }, 1000);
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+      // mv rex to savings
+      // owner - name
+      // assert - asset
+    },
+    mvfrsavings({ state, commit, dispatch }, { assert } = {}) {
+      console.log(assert);
+      // // mv rex from savings
+      // owner - name
+      // assert - asset
+      return new Promise(async (resolve, reject) => {
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let res = await state.eos.contract("eosio").then(contract => {
+            return contract.mvfrsavings(account.name, assert, {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            });
+          });
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+          setTimeout(() => {
+            dispatch("getRexBal");
+          }, 1000);
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+    },
+
+    // 退出登录
+    logout({ state, commit }) {
+      state.scatter.logout();
+      commit("setLiquidBalance", { liquidBalance: null });
+      commit("setAccount", { account: null });
+      commit("setRexBal", { account: null });
+    },
+    login({ commit, dispatch }) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          await dispatch("getIdentity");
+          commit("setLoadingShow", { loadingShow: false });
+          resolve();
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject();
+        }
+      });
+    },
     // 初始化 Scatter
     initScatter({ commit, state }) {
       return new Promise(async (resolve, reject) => {
@@ -91,22 +175,26 @@ export default new Vuex.Store({
     },
     // 获取帐号的可用余额
     getAccountBalance({ commit, state, dispatch }) {
-      return new Promise(async resolve => {
+      return new Promise(async (resolve, reject) => {
         await dispatch("initScatter");
-        let res = await state.eos.getTableRows({
-          json: true, // Get the response as json
-          code: "eosio.token", // Contract that we target
-          scope: state.account.name, // Account that owns the data
-          table: "accounts", // Table name
-          limit: 10 // maximum number of rows that we want to get
-        });
-        if (res.rows && res.rows.length) {
-          let liquidBalance = res.rows[0].balance.split(" ")[0];
-          // 格式 1.234
-          resolve(liquidBalance);
-          commit("setLiquidBalance", { liquidBalance });
+        try {
+          let res = await state.eos.getTableRows({
+            json: true, // Get the response as json
+            code: "eosio.token", // Contract that we target
+            scope: " " + state.account.name, // Account that owns the data
+            table: "accounts", // Table name
+            limit: 10 // maximum number of rows that we want to get
+          });
+          if (res.rows && res.rows.length) {
+            let liquidBalance = res.rows[0].balance.split(" ")[0];
+            // 格式 1.234
+            resolve(liquidBalance);
+            commit("setLiquidBalance", { liquidBalance });
+          }
+          resolve();
+        } catch (error) {
+          reject(error);
         }
-        resolve();
       });
     },
     // 获取当前帐号
@@ -120,6 +208,12 @@ export default new Vuex.Store({
               x => x.blockchain === "eos"
             );
             commit("setAccount", { account });
+            // 获取rexbal信息
+            dispatch("getRexBal");
+            // // 获取帐号余额
+            dispatch("getAccountBalance");
+            // 获取rexfund信息
+            dispatch("getRexFund");
             resolve();
           } else {
             reject();
@@ -138,16 +232,17 @@ export default new Vuex.Store({
               code: "eosio",
               json: true,
               limit: 1,
-              lower_bound: state.account.name,
+              lower_bound: " " + state.account.name,
               scope: "eosio",
               table: "rexbal",
-              upper_bound: state.account.name
+              upper_bound: " " + state.account.name
             });
             if (res.rows && res.rows.length) {
               let rexBal = res.rows[0];
               resolve(rexBal);
               commit("setRexBal", { rexBal });
             }
+            resolve();
           } else {
             reject();
           }
@@ -157,26 +252,21 @@ export default new Vuex.Store({
       });
     },
     // 获取rexpool信息
-    getRexPool({ commit, state, dispatch }) {
+    getRexPool({ commit, state }) {
       return new Promise(async (resolve, reject) => {
-        await dispatch("initScatter");
         try {
-          if (state.scatter) {
-            let res = await state.eos.getTableRows({
-              code: "eosio",
-              json: true,
-              scope: "eosio",
-              table: "rexpool"
-            });
-            if (res.rows && res.rows.length) {
-              let rexPool = res.rows[0];
-              resolve(rexPool);
-              commit("setRexPool", { rexPool });
-            }
-            resolve();
-          } else {
-            reject();
+          let res = await state.eos.getTableRows({
+            code: "eosio",
+            json: true,
+            scope: "eosio",
+            table: "rexpool"
+          });
+          if (res.rows && res.rows.length) {
+            let rexPool = res.rows[0];
+            resolve(rexPool);
+            commit("setRexPool", { rexPool });
           }
+          resolve();
         } catch (error) {
           reject(error);
         }
@@ -209,8 +299,8 @@ export default new Vuex.Store({
               scope: "eosio",
               table: "rexfund",
               table_key: "",
-              lower_bound: state.account.name,
-              upper_bound: state.account.name,
+              lower_bound: " " + state.account.name,
+              upper_bound: " " + state.account.name,
               limit: 1
             });
             if (res.rows && res.rows.length) {

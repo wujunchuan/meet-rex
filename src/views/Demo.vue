@@ -1,10 +1,16 @@
 <template>
   <div>
-    <div>
+    <div v-if="account">
       <h2>个人信息</h2>
       <div>当前帐号{{ account.name }}</div>
       <div>EOS余额{{ liquidBalance }} EOS</div>
       <div>REX余额 {{ rexBalance | formatAssert({ symbol: "REX" }) }}</div>
+      <div>
+        可以出售的数量 {{ maturedRex | formatAssert({ symbol: "REX" }) }}
+      </div>
+      <div v-if="maturedRexForever">
+        REX储蓄桶数量{{ maturedRexForever | formatAssert({ symbol: "REX" }) }}
+      </div>
       <div>REX 对应价值: {{ rexValue | formatAssert({ decimal: 4 }) }}</div>
     </div>
     <!-- <div>
@@ -54,6 +60,35 @@ import { mapState } from "vuex";
 import { getAssertCount, toFixed } from "../util.js";
 export default {
   computed: {
+    maturedRexForever() {
+      if (this.rexBal) {
+        let { rex_maturities = [] } = this.rexBal;
+        let maturedRexForeverIndex = rex_maturities.length - 1;
+        if (maturedRexForeverIndex >= 0) {
+          // 有这个记录的话
+          let maturedTime = rex_maturities[maturedRexForeverIndex].first;
+          // 随便取个 10天 ，反正这个时候早就他妈的matured了
+          if (
+            new Date(maturedTime).getTime() - new Date().getTime() >
+            864000000
+          ) {
+            const result =
+              rex_maturities[maturedRexForeverIndex].second / 10000;
+            console.log(result);
+            return result;
+          }
+        }
+      }
+      // REX储蓄桶
+      return (
+        this.rexBal &&
+        this.rexBal.rex_maturities[this.rexBal.rex_maturities.length - 1]
+      );
+    },
+    maturedRex() {
+      // 已经成熟的REX数量（可以出售的数量）
+      return this.rexBal && this.rexBal.matured_rex / 10000;
+    },
     rexBalance() {
       return getAssertCount(this.rexBal && this.rexBal.rex_balance);
     },

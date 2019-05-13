@@ -1,46 +1,48 @@
 <template>
-  <div class="fund">
+  <div class="savings">
     <div class="container">
       <div class="button-group">
         <div
-          @click="mode = 'deposit'"
+          @click="mode = 'lock'"
+          :class="mode === 'lock' ? 'active' : null"
           class="button"
-          :class="mode === 'deposit' ? 'active' : null"
         >
-          {{ $t("deposit") }}
+          {{ $t("lock") }}
         </div>
         <div
-          @click="mode = 'withdraw'"
+          @click="mode = 'unlock'"
+          :class="mode === 'unlock' ? 'active' : null"
           class="button"
-          :class="mode === 'withdraw' ? 'active' : null"
         >
-          {{ $t("withdraw") }}
+          {{ $t("unlock") }}
         </div>
       </div>
     </div>
+
     <div class="info-container">
-      <!-- Fund balance -->
+      <!-- Saving balance -->
       <div class="balance">
-        <h1 class="title">{{ $t("fund-balance") }}</h1>
+        <h1 class="title">{{ $t("lock_account") }}</h1>
         <div class="number-medium">
-          <template v-if="rexFund">
-            {{ rexFund.balance }}
+          <template v-if="unmaturedRexForever">
+            {{ unmaturedRexForever | formatAssert({ symbol: "REX" }) }}
           </template>
           <template v-else>
             {{ $t("is-null") }}
           </template>
         </div>
       </div>
-      <!-- 存入 -->
-      <div class="deposit" v-if="mode === 'deposit'">
-        <h1 class="title">{{ $t("deposit-amount") }}</h1>
+
+      <!-- lock -->
+      <div class="lock" v-if="mode === 'lock'">
+        <h1 class="title">{{ $t("lock_amount") }}</h1>
         <div>
           <input
-            v-model.number.trim="depositAcount"
             type="number"
-            :placeholder="liquidBalance"
+            v-model.number.trim="lockAcount"
+            :placeholder="maturedRex"
           />
-          <span class="number-medium unit">EOS</span>
+          <span class="number-medium unit">REX</span>
           <!-- 快速选择 -->
           <div class="quick-button-group">
             <div class="quick-button" @click="quick(0.25)">25%</div>
@@ -50,16 +52,16 @@
           </div>
         </div>
       </div>
-      <!-- 取出 -->
-      <div class="withdraw" v-if="mode === 'withdraw'">
-        <h1 class="title">{{ $t("withdraw-amount") }}</h1>
+      <!-- unlock -->
+      <div class="lock" v-if="mode === 'unlock'">
+        <h1 class="title">{{ $t("unlock_amount") }}</h1>
         <div>
           <input
-            v-model.number.trim="withdrawAcount"
             type="number"
-            :placeholder="rexFund && rexFund.balance | getAssertCount"
+            v-model.number.trim="unlockAcount"
+            :placeholder="unmaturedRexForever"
           />
-          <span class="number-medium unit">EOS</span>
+          <span class="number-medium unit">REX</span>
           <!-- 快速选择 -->
           <div class="quick-button-group">
             <div class="quick-button" @click="quick(0.25)">25%</div>
@@ -73,9 +75,7 @@
 
     <div class="container">
       <div class="button-confirm touchable" @click="pushTransaction">
-        {{
-          mode === "deposit" ? $t("deposit-confirm") : $t("withdraw-confirm")
-        }}
+        {{ mode === "lock" ? $t("confirm_lock") : $t("confirm_unlock") }}
       </div>
     </div>
 
@@ -83,147 +83,127 @@
       <div class="notes">
         {{ $t("notice") }}
         <li>
-          {{ $t("rex-notice-0") }}
-        </li>
-        <li>
-          {{ $t("rex-notice-1") }}
+          {{ $t("saving-notice-0") }}
         </li>
       </div>
     </div>
   </div>
 </template>
+
 <script>
-import { mapState } from "vuex";
-import {
-  getAssertCount,
-  toFixed,
-  getPermission,
-  toAssertSymbol
-} from "../util";
+import { mapState, mapActions } from "vuex";
+import { toFixed, toAssertSymbol } from "../util";
+
 export default {
-  name: "fund",
-  computed: {
-    ...mapState(["rexFund", "liquidBalance", "eos", "account"])
-  },
   data() {
     return {
-      mode: "deposit",
-      depositAcount: null,
-      withdrawAcount: null
+      mode: "lock", // `lock` & `unlock`
+      lockAcount: null,
+      unlockAcount: null
     };
   },
+  computed: {
+    unmaturedRexForever() {
+      if (this.rexBal) {
+        let { rex_maturities = [] } = this.rexBal;
+        let unmaturedRexForeverIndex = rex_maturities.length - 1;
+        if (unmaturedRexForeverIndex >= 0) {
+          // 有这个记录的话
+          let maturedTime = rex_maturities[unmaturedRexForeverIndex].first;
+          // 随便取个 10天 ，反正这个时候早就他妈的matured了
+          if (
+            new Date(maturedTime).getTime() - new Date().getTime() >
+            864000000
+          ) {
+            const result =
+              rex_maturities[unmaturedRexForeverIndex].second / 10000;
+            return result;
+          }
+        }
+      }
+      // REX储蓄桶
+      return 0;
+    },
+    maturedRex() {
+      // 已经成熟的REX数量（可以出售的数量）
+      return this.rexBal && this.rexBal.matured_rex / 10000;
+    },
+    ...mapState(["account", "rexBal"])
+  },
   methods: {
-    // 发送交易
-    async pushTransaction() {
-      const account = this.account;
-      if (this.mode === "deposit") {
-        if (this.depositAcount < 0.0001) {
-          this.$vux.toast.show({
-            text: this.$t("amount-error")
-          });
-          return;
-        }
-        let amount = toAssertSymbol(this.depositAcount);
-        try {
-          this.$store.commit("setLoadingShow", { loadingShow: true });
-          let res = await this.eos.contract("eosio").then(contract => {
-            return contract.deposit(this.account.name, amount, {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
-            });
-          });
-          this.$vux.toast.show({
-            text: this.$t("transaction-success")
-          });
-          console.log(res);
-          setTimeout(() => {
-            // // 获取帐号余额
-            this.$store.dispatch("getAccountBalance");
-            // 获取rexfund
-            this.$store.dispatch("getRexFund");
-          }, 1200);
-        } catch (error) {
-          alert(JSON.stringify(error));
-        } finally {
-          this.$store.commit("setLoadingShow", { loadingShow: false });
-        }
+    pushTransaction() {
+      // 先区分mode
+      if (this.mode === "lock") {
+        this.saving();
       } else {
-        if (this.withdrawAcount < 0.0001) {
-          this.$vux.toast.show({
-            text: this.$t("amount-error")
-          });
-          return;
-        }
-        let amount = toAssertSymbol(this.withdrawAcount);
-        try {
-          this.$store.commit("setLoadingShow", { loadingShow: true });
-          let res = await this.eos.contract("eosio").then(contract => {
-            return contract.withdraw(this.account.name, amount, {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
-            });
-          });
-          this.$vux.toast.show({
-            text: this.$t("transaction-success")
-          });
-          console.log(res);
-          setTimeout(() => {
-            // // 获取帐号余额
-            this.$store.dispatch("getAccountBalance");
-            // 获取rexfund
-            this.$store.dispatch("getRexFund");
-          }, 1200);
-        } catch (error) {
-          alert(JSON.stringify(error));
-        } finally {
-          this.$store.commit("setLoadingShow", { loadingShow: false });
-        }
+        this.mvsaving();
       }
     },
     // 快速选择
     quick(rate) {
       let balance = 0;
       // 先区分mode
-      if (this.mode === "deposit") {
-        // 存入
-        balance = this.liquidBalance;
-        this.depositAcount = toFixed(balance * rate);
+      if (this.mode === "lock") {
+        // lock mode
+        balance = this.maturedRex;
+        this.lockAcount = toFixed(balance * rate);
       } else {
-        // 取出
-        balance = getAssertCount(this.rexFund.balance);
-        this.withdrawAcount = toFixed(balance * rate);
-      }
-    }
-  },
-  watch: {
-    depositAcount(val) {
-      // 如果大于余额,则取最大余额
-      const balance = this.liquidBalance;
-      if (val > balance) {
-        this.depositAcount = toFixed(balance);
+        // unlock mode
+        balance = this.unmaturedRexForever;
+        this.unlockAcount = toFixed(balance * rate);
       }
     },
-    withdrawAcount(val) {
-      const balance = getAssertCount(this.rexFund.balance);
-      if (val > balance) {
-        this.withdrawAcount = toFixed(balance);
+    // 锁仓
+    async saving() {
+      if (this.lockAcount < 0.0001) {
+        this.$vux.toast.show({
+          text: this.$t("amount-error")
+        });
+        return;
       }
-    }
-  },
-  filters: {
-    getAssertCount(str) {
+      // lockAcount
       try {
-        return Number(str.split(" ")[0]);
+        let res = await this.mvtosavings({
+          assert: toAssertSymbol(this.lockAcount, 4, "REX")
+        });
+        if (res.transaction_id) {
+          this.$vux.toast.show({
+            text: this.$t("transaction-success")
+          });
+        }
       } catch (error) {
-        return 0;
+        alert(JSON.stringify(error));
       }
-    }
+    },
+    // 解锁
+    async mvsaving() {
+      if (this.unlockAcount < 0.0001) {
+        this.$vux.toast.show({
+          text: this.$t("amount-error")
+        });
+        return;
+      }
+      try {
+        // unlockAcount
+        let res = await this.mvfrsavings({
+          assert: toAssertSymbol(this.unlockAcount, 4, "REX")
+        });
+        if (res.transaction_id) {
+          this.$vux.toast.show({
+            text: this.$t("transaction-success")
+          });
+        }
+      } catch (error) {
+        alert(JSON.stringify(error));
+      }
+    },
+    ...mapActions(["mvtosavings", "mvfrsavings"])
   }
 };
 </script>
 
 <style lang="less" scoped>
-.fund {
+.savings {
   .container {
     padding: 0 15px;
   }
@@ -261,8 +241,8 @@ export default {
   flex-direction: column;
 
   .balance,
-  .deposit,
-  .withdraw {
+  .lock,
+  .unlock {
     padding: 15px 0;
     display: flex;
     justify-content: space-between;

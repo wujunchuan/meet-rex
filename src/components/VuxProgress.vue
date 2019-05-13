@@ -17,15 +17,11 @@ export default {
       default: 0
     }
   },
-  created() {},
-  mounted() {
-    setTimeout(() => {
+  watch: {
+    percent(val) {
       let bar = this.$refs["bar"];
-      // if (this.percent < 5) {
-      //   this.percent = 50;
-      // }
-      bar.style.width = this.percent + "%";
-    }, 10);
+      bar.style.width = val + "%";
+    }
   }
 };
 </script>
@@ -34,7 +30,8 @@ export default {
 @import "../../node_modules/vux/src/styles/weui/widget/weui_progress/weui_progress.less";
 
 .weui-progress__bar {
-  background: #6c94bb;
+  // background: #6c94bb;
+  background: #3eabed;
   border-radius: 6px;
   height: 12px;
 }

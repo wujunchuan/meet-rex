@@ -20,6 +20,15 @@ module.exports = {
   },
   // webpack config
   configureWebpack: config => {
+    if (process.env.NODE_ENV === "production") {
+      config.optimization.minimizer[0].options.terserOptions.compress.warnings = false;
+      config.optimization.minimizer[0].options.terserOptions.compress.drop_console = true;
+      config.optimization.minimizer[0].options.terserOptions.compress.drop_debugger = true;
+      config.optimization.minimizer[0].options.terserOptions.compress.pure_funcs = [
+        "console.log"
+      ];
+    }
+
     const pluginList = [
       "vux-ui",
       "progress-bar",
@@ -59,11 +68,17 @@ module.exports = {
           }
           return source;
         }
+      },
+      {
+        name: "i18n",
+        // vuxStaticReplace: true,
+        // staticReplace: true,
+        // extractToFiles: "src/locales/components.yml",
+        localeList: ["en", "zh-CN"]
       }
     ];
     require("vux-loader").merge(config, {
       options: {},
-      // plugins: ['vux-ui']
       plugins: pluginList
     });
   },
@@ -72,7 +87,7 @@ module.exports = {
   outputDir: undefined,
   assetsDir: undefined,
   runtimeCompiler: undefined,
-  productionSourceMap: process.env.NODE_ENV !== "production",
+  productionSourceMap: false, // 生产环境打包时候,关闭输出map,以提高打包速度
   parallel: undefined,
 
   css: {
