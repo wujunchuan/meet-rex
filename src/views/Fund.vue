@@ -98,7 +98,7 @@ import {
   getAssertCount,
   toFixed,
   getPermission,
-  toAssertSymbol
+  toAssertSymbolWithoutComma
 } from "../util";
 export default {
   name: "fund",
@@ -123,7 +123,7 @@ export default {
           });
           return;
         }
-        let amount = toAssertSymbol(this.depositAcount);
+        let amount = toAssertSymbolWithoutComma(this.depositAcount);
         try {
           this.$store.commit("setLoadingShow", { loadingShow: true });
           let res = await this.eos.contract("eosio").then(contract => {
@@ -154,7 +154,7 @@ export default {
           });
           return;
         }
-        let amount = toAssertSymbol(this.withdrawAcount);
+        let amount = toAssertSymbolWithoutComma(this.withdrawAcount);
         try {
           this.$store.commit("setLoadingShow", { loadingShow: true });
           let res = await this.eos.contract("eosio").then(contract => {

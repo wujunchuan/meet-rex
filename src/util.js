@@ -18,6 +18,7 @@ export const numberComma = x => {
 
 /**
  * 将格式如 1.2345 的number转换成格式如 `1.2345 EOS` 的字符串
+ * 注意，这个方法是会有千分位的,如果需要使用千分位的方法，请使用`toAssertSymbolWithoutComma`
  * @author JohnTrump
  * @param {Number} num 数字
  * @param {Number} decimal default=4 精度
@@ -26,6 +27,22 @@ export const numberComma = x => {
 
 export const toAssertSymbol = (num, decimal = 4, symbol = "EOS") => {
   return numberComma(toFixed(num, decimal).toFixed(decimal)) + " " + symbol;
+};
+
+/**
+ * 将格式如 1.2345 的number转换成格式如 `1.2345 EOS` 的字符串
+ * 注意，这个方法是不会有千分位的
+ * @author JohnTrump
+ * @param {Number} num 数字
+ * @param {Number} decimal default=4 精度
+ * @param {String} symbol 符号 default='EOS'
+ */
+export const toAssertSymbolWithoutComma = (
+  num,
+  decimal = 4,
+  symbol = "EOS"
+) => {
+  return toFixed(num, decimal).toFixed(decimal) + " " + symbol;
 };
 
 /**

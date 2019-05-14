@@ -92,7 +92,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
-import { toFixed, toAssertSymbol } from "../util";
+import { toFixed, toAssertSymbolWithoutComma } from "../util";
 
 export default {
   data() {
@@ -164,7 +164,7 @@ export default {
       // lockAcount
       try {
         let res = await this.mvtosavings({
-          assert: toAssertSymbol(this.lockAcount, 4, "REX")
+          assert: toAssertSymbolWithoutComma(this.lockAcount, 4, "REX")
         });
         if (res.transaction_id) {
           this.$vux.toast.show({
@@ -186,7 +186,7 @@ export default {
       try {
         // unlockAcount
         let res = await this.mvfrsavings({
-          assert: toAssertSymbol(this.unlockAcount, 4, "REX")
+          assert: toAssertSymbolWithoutComma(this.unlockAcount, 4, "REX")
         });
         if (res.transaction_id) {
           this.$vux.toast.show({
