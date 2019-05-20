@@ -9,7 +9,9 @@ import store from "./store";
 import http from "./http";
 Vue.prototype.$http = http;
 
-// i18n
+/**
+ * I18n begin here
+ */
 import vuexI18n from "vuex-i18n";
 import LocalePlugin from "vux/src/plugins/locale";
 Vue.use(LocalePlugin);
@@ -19,7 +21,6 @@ Vue.use(vuexI18n.plugin, store, {
     console.warn(`i18n :: Key '${key}' not found for locale '${locale}'`);
   }
 });
-
 /**
  * 单页面应用中js获取url中的参数
  * @param {String} name 需要查询的queryParams[name]
@@ -33,12 +34,19 @@ function getQueryString(name) {
   }
   return "";
 }
-
 let lang = getQueryString("lang");
-
 Vue.i18n.add("en", require("../src/locale/en"));
 Vue.i18n.add("zh-CN", require("../src/locale/zh-CN"));
-
+import objectAssign from "object-assign";
+import vuxLocales from "./locale/all.yml";
+const finalLocales = {
+  en: objectAssign(vuxLocales["en"], require("../src/locale/en")),
+  "zh-CN": objectAssign(vuxLocales["zh-CN"], require("../src/locale/zh-CN"))
+};
+for (let i in finalLocales) {
+  Vue.i18n.add(i, finalLocales[i]);
+}
+// 根据参数设置初始化语系
 if (/zh/.test(lang)) {
   Vue.i18n.set("zh-CN");
 } else if (/en/.test(lang)) {
@@ -46,6 +54,9 @@ if (/zh/.test(lang)) {
 } else {
   Vue.i18n.set("en");
 }
+/**
+ * I18n End here
+ */
 
 import "lib-flexible"; // 利用手淘flexible布局，字体需要根据dpr看来改变大小
 
@@ -86,8 +97,16 @@ if (process.env.NODE_ENV === "development") {
   // });
 }
 
-// import moment from "moment";
-// moment.locale("zh-cn");
+import moment from "moment";
+// moment.locale("de");
+Vue.filter("formatTime", function(value, { format = "YYYY-MM-DD" } = {}) {
+  try {
+    return moment(new Date(value + "Z")).format(format);
+  } catch (error) {
+    console.log(error);
+    return "";
+  }
+});
 
 import { toAssertSymbol, getAssertCount, toFixed, numberComma } from "./util";
 Vue.filter("formatAssert", function(
@@ -111,6 +130,13 @@ Vue.filter("comma", function(value) {
     value = getAssertCount(value);
   }
   return numberComma(value);
+});
+
+// 路由钩子配置
+router.beforeEach((to, from, next) => {
+  // 动态设置标题
+  document.title = Vue.i18n.translate(to.meta.title);
+  next();
 });
 
 new Vue({

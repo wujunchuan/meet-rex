@@ -18,6 +18,14 @@ module.exports = {
       }
     }
   },
+  chainWebpack: config => {
+    config.module
+      .rule("yml")
+      .test(/\.(yaml|yml)$/)
+      .use("js-yaml-loader")
+      .loader("js-yaml-loader")
+      .end();
+  },
   // webpack config
   configureWebpack: config => {
     if (process.env.NODE_ENV === "production") {
@@ -71,9 +79,9 @@ module.exports = {
       },
       {
         name: "i18n",
-        // vuxStaticReplace: true,
-        // staticReplace: true,
-        // extractToFiles: "src/locales/components.yml",
+        vuxStaticReplace: false,
+        staticReplace: false,
+        extractToFiles: "src/locales/components.yml",
         localeList: ["en", "zh-CN"]
       }
     ];

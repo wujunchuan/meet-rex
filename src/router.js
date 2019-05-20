@@ -12,7 +12,10 @@ export default new Router({
     {
       path: "/",
       name: "home",
-      component: Home
+      component: Home,
+      meta: {
+        title: "route_home"
+      }
     },
     {
       path: "/demo",
@@ -22,12 +25,34 @@ export default new Router({
     {
       path: "/fund",
       name: "fund",
-      component: () => import("./views/Fund.vue")
+      component: () => import("./views/Fund.vue"),
+      meta: {
+        title: "route_fund"
+      }
     },
     {
       path: "/savings",
       name: "savings",
-      component: () => import("./views/Savings.vue")
+      component: () => import("./views/Savings.vue"),
+      meta: {
+        title: "route_savings"
+      }
+    },
+    {
+      path: "/rex",
+      name: "rex",
+      component: () => import("./views/Rex.vue"),
+      meta: {
+        title: "route_rex"
+      }
+    },
+    {
+      path: "/rent",
+      name: "rent",
+      component: () => import("./views/Rent.vue"),
+      meta: {
+        title: "route_rent"
+      }
     }
   ]
 });

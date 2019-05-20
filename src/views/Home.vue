@@ -75,6 +75,7 @@
 
     <div class="main">
       <div class="card" v-if="account">
+        <!-- 当前帐号名称 -->
         <div class="info-wrapper">
           <div class="title">{{ $t("current-account") }}</div>
           <template v-if="account">
@@ -83,12 +84,19 @@
             </span>
           </template>
         </div>
-        <div class="info-wrapper">
+        <div
+          class="info-wrapper touchable "
+          @click="$store.commit('setIsShowBucket', { isShowBucket: true })"
+        >
           <div class="title">{{ $t("rex-balance") }}</div>
           <span class="number-medium">{{
             rexBalance | formatAssert({ symbol: "REX" })
           }}</span>
+          <div class="question gray">
+            <img src="../assets/icon-question.png" alt="" />
+          </div>
         </div>
+        <!-- 当前REX对应的EOS价值 -->
         <div class="info-wrapper">
           <div class="title">{{ $t("rex-values") }}</div>
           <span class="number-medium">{{
@@ -97,12 +105,18 @@
         </div>
       </div>
       <div class="form-container">
-        <div class="card card-half touchable" @click="navto('lent')">
+        <div
+          class="card card-half touchable"
+          @click="$router.push({ name: 'rex' })"
+        >
           <div class="title">{{ $t("rex-price") }}</div>
           <span class="price number-medium">{{ rexRate }}</span>
           <div class="nav">{{ $t("buy-sell-rex") }}</div>
         </div>
-        <div class="card card-half touchable" @click="navto('rent')">
+        <div
+          class="card card-half touchable"
+          @click="$router.push({ name: 'rent' })"
+        >
           <div class="title">{{ $t("resource-price") }}</div>
           <span class="price number-medium">{{ rentRate }}</span>
           <div class="nav">{{ $t("rent-resource") }}</div>
@@ -162,6 +176,8 @@
         </div>
       </div>
     </div>
+
+    <!-- 关于年化的解答 -->
     <div class="custom-alert" v-transfer-dom>
       <alert
         v-model="isShowQA"
@@ -212,6 +228,23 @@ export default {
     };
   },
   computed: {
+    rex_maturities() {
+      return (
+        this.rexBal &&
+        this.rexBal.rex_maturities.length > 0 &&
+        this.rexBal.rex_maturities.filter(item => {
+          return (
+            new Date(item.first).getTime() - new Date().getTime() < 864000000
+          );
+        })
+      );
+    },
+    // REX已经解锁的数量
+    maturedRex() {
+      // 已经成熟的REX数量（可以出售的数量）
+      return this.rexBal && this.rexBal.matured_rex / 10000;
+    },
+    // REX储蓄桶的数量
     unmaturedRexForever() {
       if (this.rexBal) {
         let { rex_maturities = [] } = this.rexBal;
@@ -424,6 +457,23 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.question {
+  display: inline-block;
+  color: #ffffff;
+  width: 16px;
+  height: 16px;
+  img {
+    width: 100%;
+    height: 100%;
+  }
+
+  &.gray {
+    img {
+      filter: invert(68%) sepia(2%) saturate(0%) hue-rotate(37deg)
+        brightness(93%) contrast(82%);
+    }
+  }
+}
 .header {
   padding: 15px 15px 12px;
   background: #00baff; /* Old browsers */
@@ -465,16 +515,6 @@ export default {
       .title {
         opacity: 0.5;
         padding-right: 6px;
-      }
-      .question {
-        display: inline-block;
-        color: #ffffff;
-        width: 16px;
-        height: 16px;
-        img {
-          width: 100%;
-          height: 100%;
-        }
       }
     }
   }
@@ -548,6 +588,7 @@ export default {
       font-size: 16px;
       color: #323232;
       margin-left: 10px;
+      margin-right: 5px;
     }
     .info-wrapper {
       display: flex;
@@ -626,6 +667,26 @@ export default {
 }
 
 .custom-alert {
+  // buckets table styles
+  .buckets {
+    width: 100%;
+    th {
+      color: #323232;
+    }
+
+    tr {
+      line-height: 1.7em;
+      th,
+      td {
+        &:first-child {
+          text-align: left;
+        }
+        &:last-child {
+          text-align: right;
+        }
+      }
+    }
+  }
   .detail {
     text-align: justify;
     line-height: 21px;

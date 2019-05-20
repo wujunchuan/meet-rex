@@ -15,9 +15,7 @@ npm run serve
 ### Compiles and minifies for production
 
 ```
-npm run build
-
-rsync -rave 'ssh -i ~/.ssh/meet-h5.pem' ./dist/* root@47.106.150.99:/var/www/meet-h5/pure-static/rex/
+npm run build && rsync -rave 'ssh -i ~/.ssh/meet-h5.pem' ./dist/* root@47.106.150.99:/var/www/meet-h5/pure-static/rex/
 
 ```
 
