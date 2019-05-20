@@ -23,6 +23,7 @@ export default new Vuex.Store({
   },
   state: {
     account: null, // 当前账号名(Scatter获取)
+    userStaked: null,
     scatter: null, // Global Scatter Object
     eos: Eos({
       httpEndpoint: `${_network.protocol}://${_network.host}:${_network.port}`
@@ -33,9 +34,17 @@ export default new Vuex.Store({
     rexBal: null,
     rexProfits: null,
     rexFund: null,
-    isInject: false
+    isInject: false,
+    isShowBucket: false
   },
   mutations: {
+    setIsShowBucket(state, { isShowBucket }) {
+      state.isShowBucket = isShowBucket;
+    },
+    setUserStaked(state, payload) {
+      state.userStaked = payload.delband;
+      console.log("setUserStaked", state.userStaked);
+    },
     setIsInject(state, payload) {
       state.isInject = payload.isInject;
     },
@@ -61,6 +70,7 @@ export default new Vuex.Store({
       state.rexPool = payload.rexPool;
     },
     setRexBal(state, payload) {
+      console.log("rexbal:", payload.rexBal);
       state.rexBal = payload.rexBal;
     },
     setRexProfits(state, payload) {
@@ -68,6 +78,248 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    rentcpu(
+      { state, commit, dispatch },
+      { receiver = "", loan_payment, loan_fund } = {}
+    ) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            commit("setLoadingShow", { loadingShow: true });
+            let account = state.account;
+            let contract = await state.eos.contract("eosio");
+            let res = await contract.rentcpu(
+              {
+                from: account.name,
+                receiver: receiver || account.name,
+                loan_payment: loan_payment,
+                loan_fund: loan_fund || "0.0000 EOS"
+              },
+              {
+                authorization:
+                  account.name + "@" + getPermission(account.authority)
+              }
+            );
+            resolve(res);
+            commit("setLoadingShow", { loadingShow: false });
+            dispatch("getRexFund"); // 获取rexfund信息
+          } else {
+            reject();
+          }
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+          console.log(error);
+        }
+      });
+    },
+    rentnet(
+      { state, commit, dispatch },
+      { receiver = "", loan_payment, loan_fund } = {}
+    ) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            commit("setLoadingShow", { loadingShow: true });
+            let account = state.account;
+            let contract = await state.eos.contract("eosio");
+            let res = await contract.rentnet(
+              {
+                from: account.name,
+                receiver: receiver || account.name,
+                loan_payment: loan_payment,
+                loan_fund: loan_fund || "0.0000 EOS"
+              },
+              {
+                authorization:
+                  account.name + "@" + getPermission(account.authority)
+              }
+            );
+            resolve(res);
+            commit("setLoadingShow", { loadingShow: false });
+            dispatch("getRexFund"); // 获取rexfund信息
+          } else {
+            reject();
+          }
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+          console.log(error);
+        }
+      });
+    },
+    rentboth(
+      { state, commit, dispatch },
+      {
+        receiver = "",
+        cpu_loan_payment,
+        cpu_loan_fund,
+        net_loan_payment,
+        net_loan_fund
+      } = {}
+    ) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            commit("setLoadingShow", { loadingShow: true });
+            let account = state.account;
+            let authorization = {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            };
+            let contract = await state.eos.contract("eosio");
+            let res = await contract.transaction(tr => {
+              tr.rentcpu(
+                {
+                  from: account.name,
+                  receiver: receiver || account.name,
+                  loan_payment: cpu_loan_payment,
+                  loan_fund: cpu_loan_fund || "0.0000 EOS"
+                },
+                authorization
+              );
+              tr.rentnet(
+                {
+                  from: account.name,
+                  receiver: receiver || account.name,
+                  loan_payment: net_loan_payment,
+                  loan_fund: net_loan_fund || "0.0000 EOS"
+                },
+                authorization
+              );
+            });
+            resolve(res);
+            commit("setLoadingShow", { loadingShow: false });
+            dispatch("getRexFund"); // 获取rexfund信息
+          } else {
+            reject();
+          }
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+          console.log(error);
+        }
+      });
+    },
+    getUserStaked({ state, commit, dispatch }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            let res = await state.eos.getTableRows({
+              json: true,
+              code: "eosio",
+              scope: state.account.name,
+              table: "delband",
+              lower_bound: " " + state.account.name,
+              upper_bound: " " + state.account.name,
+              limit: 1
+            });
+            if (res.rows && res.rows.length) {
+              let delband = res.rows[0];
+              resolve(delband);
+              commit("setUserStaked", { delband });
+            } else {
+              reject();
+            }
+            resolve();
+          }
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    // 买入REX
+    buyrex({ state, commit, dispatch }, { assert, mode = "fund" } = {}) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (!state.scatter) {
+            alert("no scatter");
+            return;
+          }
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let contract = await state.eos.contract("eosio");
+          let res = null;
+          if (mode === "rexfund") {
+            // - 通过FOUND -> buyrex
+            res = await contract.buyrex(account.name, assert, {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            });
+          } else if (mode === "liquid") {
+            // 通过 liquidEOS -> buyrex
+            // NOTE: smart contract multi-actions demo
+            res = await contract.transaction(tr => {
+              // first, deposit liquid-eos -> eos fund
+              tr.deposit(account.name, assert, {
+                authorization:
+                  account.name + "@" + getPermission(account.authority)
+              });
+              // second, buyrex by eos fund
+              tr.buyrex(account.name, assert, {
+                authorization:
+                  account.name + "@" + getPermission(account.authority)
+              });
+            });
+          } else if (mode === "stakedcpu" || mode === "stakednet") {
+            res = await contract.unstaketorex(
+              {
+                owner: account.name,
+                receiver: account.name,
+                from_cpu: mode === "stakedcpu" ? assert : "0.0000 EOS",
+                from_net: mode === "stakednet" ? assert : "0.0000 EOS"
+              },
+              {
+                authorization:
+                  account.name + "@" + getPermission(account.authority)
+              }
+            );
+          } else {
+            alert("None payment mode selected");
+          }
+
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+
+          setTimeout(() => {
+            dispatch("getRexBal"); // 获取当前帐号REX解锁列表
+            dispatch("getAccountBalance"); // 获取当前帐号余额
+            dispatch("getRexFund"); // 获取rexfund信息
+          }, 1000);
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+          console.log(error);
+        }
+      });
+    },
+    // 卖出REX
+    sellrex({ state, commit, dispatch }, { assert } = {}) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let contract = await state.eos.contract("eosio");
+          let res = await contract.sellrex(account.name, assert, {
+            authorization: account.name + "@" + getPermission(account.authority)
+          });
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+          setTimeout(() => {
+            dispatch("getRexBal"); // 更新当前帐号REX质押详情
+            dispatch("getAccountBalance"); // 更新当前帐号余额
+          }, 1000);
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+    },
     // assert: `0.00001 REX`
     mvtosavings({ state, commit, dispatch }, { assert } = {}) {
       return new Promise(async (resolve, reject) => {
@@ -95,7 +347,6 @@ export default new Vuex.Store({
       // assert - asset
     },
     mvfrsavings({ state, commit, dispatch }, { assert } = {}) {
-      console.log(assert);
       // // mv rex from savings
       // owner - name
       // assert - asset
@@ -208,6 +459,8 @@ export default new Vuex.Store({
               x => x.blockchain === "eos"
             );
             commit("setAccount", { account });
+            // 当前帐号抵押信息
+            dispatch("getUserStaked");
             // 获取rexbal信息
             dispatch("getRexBal");
             // // 获取帐号余额

@@ -52,6 +52,9 @@ export const toAssertSymbolWithoutComma = (
  * 如果发生异常,则抛出0
  */
 export const getAssertCount = str => {
+  if (typeof str === "number") {
+    return str;
+  }
   try {
     return Number(str.split(" ")[0]);
   } catch (error) {

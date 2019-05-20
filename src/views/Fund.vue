@@ -88,6 +88,11 @@
         <li>
           {{ $t("rex-notice-1") }}
         </li>
+        <li v-if="mode === 'deposit'">
+          <router-link :to="{ name: 'rex' }">
+            {{ $t("buy_rex_now") }}
+          </router-link>
+        </li>
       </div>
     </div>
   </div>
