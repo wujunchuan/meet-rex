@@ -307,10 +307,32 @@ export default {
     }
   },
   computed: {
+    // 已经过期，但是未更新的数组
+    rex_maturities() {
+      return (
+        this.rexBal &&
+        this.rexBal.rex_maturities.length > 0 &&
+        this.rexBal.rex_maturities.filter(item => {
+          // 过期时间 - 当前时间 < 0, 意味着已经过期但是未更新
+          return new Date(item.first).getTime() - new Date().getTime() < 0;
+        })
+      );
+    },
     // REX已经解锁的数量
     maturedRex() {
+      // 修复一个EOS的Bug，只有出售REX才会更新 `rex_maturities`的问题
+      // 所以我们要循环遍历，去判断 `rex_maturities`中的 `rex_maturity`是否过期，如果过期的话，计算到 maturedREX的总量中
       // 已经成熟的REX数量（可以出售的数量）
-      return this.rexBal && this.rexBal.matured_rex / 10000;
+      let addition = 0;
+      if (this.rex_maturities && this.rex_maturities.length > 0) {
+        this.rex_maturities.forEach(i => {
+          console.log(i);
+          addition = addition + Number(i.second);
+        });
+      }
+      return (
+        this.rexBal && (Number(this.rexBal.matured_rex) + addition) / 10000
+      );
     },
     // REX价格
     rexRate() {
