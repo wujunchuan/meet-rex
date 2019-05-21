@@ -1,5 +1,7 @@
 # meet-hcb
 
+项目地址： `https://dapp.ethte.com/rex/#/`
+
 ## Project setup
 
 ```
