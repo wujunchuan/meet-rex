@@ -35,7 +35,9 @@ export default new Vuex.Store({
     rexProfits: null,
     rexFund: null,
     isInject: false,
-    isShowBucket: false
+    isShowBucket: false,
+    cpuLoans: null, // cpu 租赁记录
+    netLoans: null // net 租赁记录
   },
   mutations: {
     setIsShowBucket(state, { isShowBucket }) {
@@ -75,9 +77,83 @@ export default new Vuex.Store({
     },
     setRexProfits(state, payload) {
       state.rexProfits = payload.rexProfits;
+    },
+    setCPULoans(state, payload) {
+      state.cpuLoans = payload.cpuLoans;
+      console.log("payload.cpuLoans", payload.cpuLoans);
+    },
+    setNETLoans(state, payload) {
+      state.netLoans = payload.netLoans;
+      console.log("payload.netLoans", payload.netLoans);
     }
   },
   actions: {
+    // 获取 cpuloan
+    getCPULoan({ state, dispatch, commit }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            let res = await state.eos.getTableRows({
+              code: "eosio",
+              table: "cpuloan",
+              json: true,
+              key_type: "i64",
+              scope: "eosio",
+              table_key: "",
+              lower_bound: " " + state.account.name,
+              upper_bound: " " + state.account.name,
+              index_position: 3,
+              limit: 100
+            });
+            if (res.rows && res.rows.length) {
+              let cpuLoans = res.rows;
+              resolve(cpuLoans);
+              commit("setCPULoans", { cpuLoans });
+            }
+          } else {
+            reject();
+          }
+          resolve();
+        } catch (error) {
+          reject(error);
+          console.log(error);
+        }
+      });
+    },
+    // 获取 netloan
+    getNETLoan({ state, dispatch, commit }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            let res = await state.eos.getTableRows({
+              code: "eosio",
+              table: "netloan",
+              json: true,
+              key_type: "i64",
+              scope: "eosio",
+              table_key: "",
+              lower_bound: state.account.name,
+              upper_bound: state.account.name,
+              index_position: 3,
+              limit: 100
+            });
+            if (res.rows && res.rows.length) {
+              let netLoans = res.rows;
+              resolve(netLoans);
+              commit("setNETLoans", { netLoans });
+            }
+          } else {
+            reject();
+          }
+          resolve();
+        } catch (error) {
+          reject(error);
+          console.log(error);
+        }
+      });
+    },
     rentcpu(
       { state, commit, dispatch },
       { receiver = "", loan_payment, loan_fund } = {}

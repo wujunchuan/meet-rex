@@ -52,6 +52,12 @@
       <div>REX价格: {{ rexRate }}</div>
       <div>租赁费率: {{ rentRate }}</div>
     </div>
+
+    <div>
+      <h2>Actions Buttons</h2>
+      <button @click="$store.dispatch('getCPULoan')">getCPULoan</button>
+      <button @click="$store.dispatch('getNETLoan')">getNETLoan</button>
+    </div>
   </div>
 </template>
 
