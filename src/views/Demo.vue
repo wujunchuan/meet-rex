@@ -57,6 +57,8 @@
       <h2>Actions Buttons</h2>
       <button @click="$store.dispatch('getCPULoan')">getCPULoan</button>
       <button @click="$store.dispatch('getNETLoan')">getNETLoan</button>
+      <button @click="$store.dispatch('getUserProxy')">getUserProxy</button>
+      <button @click="$store.dispatch('voteUs')">voteUs</button>
     </div>
   </div>
 </template>

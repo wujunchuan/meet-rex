@@ -193,6 +193,13 @@ export default {
     // 确认交易
     async pushTransaction() {
       try {
+        if (!this.isVoted) {
+          // 如果没满足条件, 提示用户投票
+          this.$store.commit("setIsShowVoteRequire", {
+            isShowVoteRequire: true
+          });
+          return;
+        }
         let res = null;
         // 区分模式
         if (this.mode === "buy") {
@@ -353,7 +360,14 @@ export default {
     i18n() {
       return this.$store.state.i18n.locale;
     },
-    ...mapState(["liquidBalance", "rexBal", "rexFund", "rexPool", "userStaked"])
+    ...mapState([
+      "liquidBalance",
+      "rexBal",
+      "rexFund",
+      "rexPool",
+      "userStaked",
+      "isVoted"
+    ])
   },
   components: {
     PopupPicker,

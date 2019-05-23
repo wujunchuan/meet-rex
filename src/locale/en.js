@@ -72,5 +72,9 @@ module.exports = {
   loan_estimate: "Loan estimate",
   confirm_borrow: "Borrow",
   loan_notice_1: "Current price: {rentRate} EOS * 30days / EOS",
-  error_account_length: "{receiver} can't be up to 12 characters long"
+  error_account_length: "{receiver} can't be up to 12 characters long",
+  vote_title: "Vote for BP",
+  vote_body:
+    "Before trading REX, need to setup proxy voting or vote for 21 BPs with the staked resource.",
+  vote_confirm: "Setup proxy"
 };

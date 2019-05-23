@@ -36,10 +36,19 @@ export default new Vuex.Store({
     rexFund: null,
     isInject: false,
     isShowBucket: false,
+    isVoted: false, // 是否已经有代理投票或者投票满足21个节点，
+    isShowVoteRequire: false,
     cpuLoans: null, // cpu 租赁记录
     netLoans: null // net 租赁记录
   },
   mutations: {
+    setIsShowVoteRequire(state, { isShowVoteRequire }) {
+      state.isShowVoteRequire = isShowVoteRequire;
+    },
+    setIsVoted(state, { isVoted }) {
+      state.isVoted = isVoted;
+      console.log("isVoted:", state.isVoted);
+    },
     setIsShowBucket(state, { isShowBucket }) {
       state.isShowBucket = isShowBucket;
     },
@@ -88,6 +97,71 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    voteUs({ state, dispatch, commit }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let contract = await state.eos.contract("eosio");
+          let res = await contract.voteproducer(
+            {
+              voter: account.name,
+              proxy: "rex.m",
+              producers: []
+            },
+            {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            }
+          );
+          resolve(res);
+          if (res.transaction_id) {
+            commit("setIsVoted", { isVoted: true });
+          }
+          commit("setLoadingShow", { loadingShow: false });
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+    },
+    // 判断用户是否有代理投票,或者投票满21个节点[这个是参与REX买卖与资源租赁的先决条件]
+    getUserProxy({ state, dispatch, commit }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter && state.account) {
+            // let mock_name = "wujunchuan12";
+            let res = await state.eos.getTableRows({
+              code: "eosio",
+              table: "voters",
+              scope: "eosio",
+              json: true,
+              lower_bound: " " + state.account.name,
+              upper_bound: " " + state.account.name,
+              // lower_bound: " " + mock_name,
+              // upper_bound: " " + mock_name,
+              limit: 100
+            });
+            if (res.rows && res.rows.length) {
+              let voters = res.rows[0];
+              // 判断是否有代理投票
+              let is_proxy = !!voters.proxy;
+              let is_producer = voters.producers.length >= 21;
+              // 设置 `isVoted` 具体的值
+              commit("setIsVoted", { isVoted: is_proxy || is_producer });
+              resolve(voters);
+            }
+          } else {
+            reject();
+          }
+        } catch (error) {
+          reject(error);
+          console.log(error);
+        }
+      });
+    },
     // 获取 cpuloan
     getCPULoan({ state, dispatch, commit }) {
       return new Promise(async (resolve, reject) => {
@@ -543,6 +617,8 @@ export default new Vuex.Store({
             dispatch("getAccountBalance");
             // 获取rexfund信息
             dispatch("getRexFund");
+            // 查看投票情况
+            dispatch("getUserProxy");
             resolve();
           } else {
             reject();

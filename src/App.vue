@@ -44,16 +44,29 @@
         </table>
       </alert>
     </div>
+    <div class="custom-alert" v-transfer-dom>
+      <confirm
+        v-model="isShowVoteRequire"
+        @on-confirm="$store.dispatch('voteUs')"
+        :confirm-text="$t('vote_confirm')"
+        :title="$t('vote_title')"
+      >
+        <div>
+          {{ $t("vote_body") }}
+        </div>
+      </confirm>
+    </div>
   </div>
 </template>
 
 <script>
-import { Loading, TransferDom, Alert } from "vux";
+import { Loading, TransferDom, Alert, Confirm } from "vux";
 import { mapState } from "vuex";
 export default {
   components: {
     Loading,
-    Alert
+    Alert,
+    Confirm
   },
   directives: {
     TransferDom
@@ -109,6 +122,14 @@ export default {
       },
       set(val) {
         this.$store.commit("setIsShowBucket", { isShowBucket: val });
+      }
+    },
+    isShowVoteRequire: {
+      get() {
+        return this.$store.state.isShowVoteRequire;
+      },
+      set(val) {
+        this.$store.commit("setIsShowVoteRequire", { isShowVoteRequire: val });
       }
     },
     ...mapState(["scatter", "account", "loadingShow", "rexBal"])

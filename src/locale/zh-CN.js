@@ -70,5 +70,9 @@ module.exports = {
   loan_estimate: "租金估值",
   confirm_borrow: "确认借入",
   loan_notice_1: "当前资源租金为{rentRate} EOS * 30天 / EOS",
-  error_account_length: "资源接收者 {receiver} 长度不能超过12个字符"
+  error_account_length: "资源接收者 {receiver} 长度不能超过12个字符",
+  vote_title: "投票给节点",
+  vote_body:
+    "交易 REX 之前必须要用已抵押的资源投票给 21 个节点或设置投票代理。",
+  vote_confirm: "设置代理"
 };
