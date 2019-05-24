@@ -97,6 +97,114 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    // withdraw from loan's balance[cpu loan]
+    defcpuloan({ state, dispatch, commit }, { loan_num, from, amount }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let contract = await state.eos.contract("eosio");
+          let res = await contract.defcpuloan(
+            {
+              from: from,
+              loan_num: loan_num,
+              amount: amount
+            },
+            {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            }
+          );
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+    },
+    // withdraw from loan's balance[net loan]
+    defnetloan({ state, dispatch, commit }, { loan_num, from, amount }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let contract = await state.eos.contract("eosio");
+          let res = await contract.defnetloan(
+            {
+              from: from,
+              loan_num: loan_num,
+              amount: amount
+            },
+            {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            }
+          );
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+    },
+    // withdraw from loan's balance[cpu loan]
+    fundcpuloan({ state, dispatch, commit }, { loan_num, from, amount }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let contract = await state.eos.contract("eosio");
+          let res = await contract.fundcpuloan(
+            {
+              from: from,
+              loan_num: loan_num,
+              payment: amount
+            },
+            {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            }
+          );
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+    },
+    // withdraw from loan's balance[net loan]
+    fundnetloan({ state, dispatch, commit }, { loan_num, from, amount }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let contract = await state.eos.contract("eosio");
+          let res = await contract.fundnetloan(
+            {
+              from: from,
+              loan_num: loan_num,
+              payment: amount
+            },
+            {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            }
+          );
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
+        } catch (error) {
+          commit("setLoadingShow", { loadingShow: false });
+          reject(error);
+        }
+      });
+    },
     voteUs({ state, dispatch, commit }) {
       return new Promise(async (resolve, reject) => {
         await dispatch("initScatter");
@@ -613,12 +721,15 @@ export default new Vuex.Store({
             dispatch("getUserStaked");
             // 获取rexbal信息
             dispatch("getRexBal");
-            // // 获取帐号余额
+            // 获取帐号余额
             dispatch("getAccountBalance");
             // 获取rexfund信息
             dispatch("getRexFund");
             // 查看投票情况
             dispatch("getUserProxy");
+            // 获取CPU与NET Loans
+            dispatch("getCPULoan");
+            dispatch("getNETLoan");
             resolve();
           } else {
             reject();

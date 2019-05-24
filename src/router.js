@@ -53,6 +53,25 @@ export default new Router({
       meta: {
         title: "route_rent"
       }
+    },
+    {
+      path: "/loans",
+      name: "loans",
+      component: () => import("./views/Loans.vue"),
+      meta: {
+        // TODO: i18n
+        title: "route_loans"
+      }
+    },
+    {
+      path: "/loans/detail",
+      name: "loans-detail",
+      component: () => import("./views/LoansDetail.vue"),
+      props: true, // 设置这个为`true`时，路由的参数会当作组件的props传递给视图
+      meta: {
+        // TODO: i18n
+        title: "route_loans_detail"
+      }
     }
   ]
 });
