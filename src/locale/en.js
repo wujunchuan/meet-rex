@@ -76,5 +76,19 @@ module.exports = {
   vote_title: "Vote for BP",
   vote_body:
     "Before trading REX, need to setup proxy voting or vote for 21 BPs with the staked resource.",
-  vote_confirm: "Setup proxy"
+  vote_confirm: "Setup proxy",
+  route_loans: "Loan orders",
+  route_loans_detail: "Loan detail",
+  loans_deposit: "Deposit",
+  loans_withdraw: "Withdraw",
+  loans_type: "Staked {type}",
+  loans_payment: "Payment",
+  loans_receiver: "Receiver",
+  loans_time: "Due Time",
+  loans_warn: "Automatic renewal need {payment} at least",
+  loans_balance: "Fund Balance",
+  loans_deposit_continue: "Amount",
+  loans_withdraw_continue: "Amount",
+  loans_deposit_confirm: "Deposit",
+  loans_withdraw_confirm: "Withdraw"
 };

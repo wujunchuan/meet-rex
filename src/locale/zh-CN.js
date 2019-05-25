@@ -74,5 +74,19 @@ module.exports = {
   vote_title: "投票给节点",
   vote_body:
     "交易 REX 之前必须要用已抵押的资源投票给 21 个节点或设置投票代理。",
-  vote_confirm: "设置代理"
+  vote_confirm: "设置代理",
+  route_loans: "租赁记录",
+  route_loans_detail: "租赁详情",
+  loans_deposit: "存入",
+  loans_withdraw: "取出",
+  loans_type: "租用{type}",
+  loans_payment: "租金",
+  loans_receiver: "接收者",
+  loans_time: "下次续租时间",
+  loans_warn: "续租30天至少需要 {payment}",
+  loans_balance: "续租池余额",
+  loans_deposit_continue: "继续存入",
+  loans_withdraw_continue: "取出金额",
+  loans_deposit_confirm: "确认续租",
+  loans_withdraw_confirm: "确认取出"
 };

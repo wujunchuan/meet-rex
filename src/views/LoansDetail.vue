@@ -1,36 +1,36 @@
 <template>
   <div class="loans-detail">
     <!-- switch deposit/withdraw for loan balance -->
-    <div class="container">
+    <div class="container" v-if="detail && detail.type">
       <div class="button-group">
         <button
           :class="{ active: mode === 'deposit' }"
           @click="mode = 'deposit'"
         >
-          Deposit
+          {{ $t("loans_deposit") }}
         </button>
         <button
           :class="{ active: mode === 'withdraw' }"
           @click="mode = 'withdraw'"
         >
-          Withdraw
+          {{ $t("loans_withdraw") }}
         </button>
       </div>
     </div>
 
     <div class="info-container">
       <div class="cell">
-        <span class="cell-title"
-          >租用 {{ detail.type === "CPU" ? "CPU" : "NET" }}</span
-        >
+        <span class="cell-title">
+          {{ $t("loans_type", { type: detail.type }) }}
+        </span>
         <span class="cell-number"> {{ detail.total_staked }}</span>
       </div>
       <div class="cell">
-        <span class="cell-title">租金</span>
+        <span class="cell-title">{{ $t("loans_payment") }}</span>
         <span class="cell-number">{{ detail.payment }}</span>
       </div>
       <div class="cell">
-        <span class="cell-title">接收者</span>
+        <span class="cell-title">{{ $t("loans_receiver") }}</span>
         <span class="cell-number">{{ detail.receiver }}</span>
       </div>
       <!-- <div class="cell">
@@ -38,7 +38,7 @@
         <div class="cell-number">{{ detail.balance }}</div>
       </div> -->
       <div class="cell">
-        <span class="cell-title">下次续租时间</span>
+        <span class="cell-title">{{ $t("loans_time") }}</span>
         <span class="cell-number">{{
           detail.expiration | formatTime({ format: "YYYY-MM-DD HH:mm" })
         }}</span>
@@ -50,14 +50,14 @@
     <div class="info-container operation" v-if="mode === 'deposit'">
       <div class="warn-wrapper">
         <img class="icon" src="../assets/icon-warn.png" />
-        续租 30 天至少需要 {{ detail.payment }}
+        {{ $t("loans_warn", { payment: detail.payment }) }}
       </div>
       <div class="cell">
-        <div class="cell-title">续租池余额</div>
+        <div class="cell-title">{{ $t("loans_balance") }}</div>
         <div class="cell-number">{{ detail.balance }}</div>
       </div>
       <div class="cell cell-input">
-        <div class="cell-title">继续存入</div>
+        <div class="cell-title">{{ $t("loans_deposit_continue") }}</div>
         <div class="cell-number">
           <input
             type="number"
@@ -80,14 +80,14 @@
     <div class="info-container operation" v-if="mode === 'withdraw'">
       <div class="warn-wrapper">
         <img class="icon" src="../assets/icon-warn.png" />
-        续租 30 天至少需要 {{ detail.payment }}
+        {{ $t("loans_warn", { payment: detail.payment }) }}
       </div>
       <div class="cell">
-        <div class="cell-title">续租池余额</div>
+        <div class="cell-title">{{ $t("loans_balance") }}</div>
         <div class="cell-number">{{ detail.balance }}</div>
       </div>
       <div class="cell cell-input">
-        <div class="cell-title">取出金额</div>
+        <div class="cell-title">{{ $t("loans_withdraw_continue") }}</div>
         <div class="cell-number">
           <input
             type="number"
@@ -109,7 +109,11 @@
     <div class="container">
       <!-- push transaction -->
       <div class="button-confirm touchable" @click="pushTransaction">
-        {{ mode === "deposit" ? "确认续租" : "确认取出" }}
+        {{
+          mode === "deposit"
+            ? $t("loans_deposit_confirm")
+            : $t("loans_withdraw_confirm")
+        }}
       </div>
     </div>
   </div>
@@ -129,6 +133,9 @@ export default {
   // created -> mounted -> activated
   activated() {
     this.detail = this.loan;
+    this.depositAmount = null;
+    this.withdrawAmount = null;
+    this.mode = "deposit";
   },
   data() {
     return {

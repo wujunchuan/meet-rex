@@ -10,20 +10,24 @@
                 <div class="amount">{{ loan.total_staked }}</div>
               </div>
               <div class="payment">
-                <h1>租金</h1>
+                <h1>{{ $t("loans_payment") }}</h1>
                 <div class="amount">{{ loan.payment }}</div>
               </div>
             </div>
             <div class="part_2">
               <div class="wrapper">
                 <div class="detail">
-                  续租时间:
+                  {{ $t("loans_time") }}:
                   {{ loan.expiration | formatTime({ format: "YYYY/MM/DD" }) }}
                 </div>
-                <div class="detail">接收者：{{ loan.receiver }}</div>
+                <div class="detail">
+                  {{ $t("loans_receiver") }}:{{ loan.receiver }}
+                </div>
               </div>
               <div class="wrapper">
-                <div class="detail">续租池：{{ loan.balance }}</div>
+                <div class="detail">
+                  {{ $t("loans_balance") }}:{{ loan.balance }}
+                </div>
               </div>
             </div>
           </div>
