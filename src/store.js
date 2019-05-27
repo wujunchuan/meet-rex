@@ -292,6 +292,8 @@ export default new Vuex.Store({
               let cpuLoans = res.rows;
               resolve(cpuLoans);
               commit("setCPULoans", { cpuLoans });
+            } else {
+              commit("setCPULoans", { cpuLoans: [] });
             }
           } else {
             reject();
@@ -316,8 +318,8 @@ export default new Vuex.Store({
               key_type: "i64",
               scope: "eosio",
               table_key: "",
-              lower_bound: state.account.name,
-              upper_bound: state.account.name,
+              lower_bound: " " + state.account.name,
+              upper_bound: " " + state.account.name,
               index_position: 3,
               limit: 100
             });
@@ -325,6 +327,8 @@ export default new Vuex.Store({
               let netLoans = res.rows;
               resolve(netLoans);
               commit("setNETLoans", { netLoans });
+            } else {
+              commit("setNETLoans", { netLoans: [] });
             }
           } else {
             reject();
@@ -362,6 +366,7 @@ export default new Vuex.Store({
             resolve(res);
             commit("setLoadingShow", { loadingShow: false });
             dispatch("getRexFund"); // 获取rexfund信息
+            dispatch("getCPULoan");
           } else {
             reject();
           }
@@ -398,6 +403,7 @@ export default new Vuex.Store({
             resolve(res);
             commit("setLoadingShow", { loadingShow: false });
             dispatch("getRexFund"); // 获取rexfund信息
+            dispatch("getNETLoan");
           } else {
             reject();
           }
@@ -452,6 +458,9 @@ export default new Vuex.Store({
             resolve(res);
             commit("setLoadingShow", { loadingShow: false });
             dispatch("getRexFund"); // 获取rexfund信息
+            // 获取CPU与NET Loans
+            dispatch("getCPULoan");
+            dispatch("getNETLoan");
           } else {
             reject();
           }

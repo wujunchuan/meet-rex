@@ -90,5 +90,6 @@ module.exports = {
   loans_deposit_continue: "Amount",
   loans_withdraw_continue: "Amount",
   loans_deposit_confirm: "Deposit",
-  loans_withdraw_confirm: "Withdraw"
+  loans_withdraw_confirm: "Withdraw",
+  home_loans: "Resource Loans"
 };

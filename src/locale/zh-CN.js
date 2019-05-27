@@ -88,5 +88,6 @@ module.exports = {
   loans_deposit_continue: "继续存入",
   loans_withdraw_continue: "取出金额",
   loans_deposit_confirm: "确认续租",
-  loans_withdraw_confirm: "确认取出"
+  loans_withdraw_confirm: "确认取出",
+  home_loans: "租赁记录"
 };

@@ -166,9 +166,21 @@
             </template>
           </div>
         </div>
-        <div class="card small item  touchable" v-if="false">
-          <div class="title">租赁记录</div>
-          <div class="nav number-medium"></div>
+        <!-- Resource Loans -->
+        <div
+          v-if="account"
+          class="card small item touchable"
+          @click="navto('loans')"
+        >
+          <div class="title">{{ $t("home_loans") }}</div>
+          <div class="nav number-medium">
+            <template v-if="loansList.length">
+              {{ loansList.length }}
+            </template>
+            <template v-else>
+              {{ $t("is-null") }}
+            </template>
+          </div>
         </div>
         <div class="card small item  touchable" v-if="false">
           <div class="title">待成交订单(sell queue)</div>
@@ -393,6 +405,27 @@ export default {
 
       return getAssertCount(this.rexProfits.ramfee);
     },
+    // 资源租赁订单
+    loansList() {
+      let cpuLoans = (this.cpuLoans || []).map(obj => {
+        obj.type = "CPU";
+        return obj;
+      });
+      let netLoans = (this.netLoans || []).map(obj => {
+        obj.type = "NET";
+        return obj;
+      });
+      let loansList = [...cpuLoans, ...netLoans];
+      // 根据时间来排序
+      // early -> older
+      loansList.sort((a, b) => {
+        let a_time = new Date(a.expiration).getTime();
+        let b_time = new Date(b.expiration).getTime();
+        return a_time - b_time;
+      });
+      console.log(loansList);
+      return loansList;
+    },
     ...mapState([
       "isInject",
       "account",
@@ -400,7 +433,9 @@ export default {
       "rexPool",
       "rexBal",
       "rexProfits",
-      "rexFund"
+      "rexFund",
+      "cpuLoans",
+      "netLoans"
     ])
   },
   methods: {
@@ -423,34 +458,22 @@ export default {
       }
     },
     navto(target = "rent") {
-      if (!(window.scatter && window.scatter.isInject)) {
-        window.location.href = "https://m.oheos.com/download/?source=theme";
-        return;
-      }
+      // 现在暂时没有跳转到客户端原生页面,所以这个判断也就注释掉了
+      // if (!(window.scatter && window.scatter.isInject)) {
+      //   window.location.href = "https://m.oheos.com/download/?source=theme";
+      //   return;
+      // }
       switch (target) {
-        case "rent":
-          // 买卖REX
-          meetBridge.invokeNavigate({
-            target: "EOSResourcesPage",
-            options: {
-              tab: 2
-            }
-          });
-          break;
-        case "lent":
-          // 租赁资源
-          meetBridge.invokeNavigate({
-            target: "REXExchangePage"
-          });
-          break;
-
-        case "fund":
-          console.log("fund");
+        case "loans":
+          if (this.loansList && this.loansList.length > 0) {
+            this.$router.push({ name: "loans" });
+          } else {
+            this.$router.push({ name: "rent" });
+          }
           break;
         default:
           break;
       }
-      console.log(target);
     }
   }
 };

@@ -1,5 +1,5 @@
 <template>
-  <div class="loans-detail">
+  <div class="loans-detail" v-if="detail">
     <!-- switch deposit/withdraw for loan balance -->
     <div class="container" v-if="detail && detail.type">
       <div class="button-group">
@@ -21,7 +21,7 @@
     <div class="info-container">
       <div class="cell">
         <span class="cell-title">
-          {{ $t("loans_type", { type: detail.type }) }}
+          {{ $t("loans_type", { type: detail && detail.type }) }}
         </span>
         <span class="cell-number"> {{ detail.total_staked }}</span>
       </div>
