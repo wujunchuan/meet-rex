@@ -212,8 +212,6 @@ import { mapState } from "vuex";
 import { getAssertCount, toFixed } from "../util.js";
 import { TransferDom, Alert } from "vux";
 import VuxProgress from "../components/VuxProgress";
-import MeetBridge from "meet-bridge";
-const meetBridge = new MeetBridge();
 
 export default {
   name: "home",
