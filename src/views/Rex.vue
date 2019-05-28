@@ -47,7 +47,7 @@
               <input
                 v-model.number.trim="buyAcount"
                 type="number"
-                :placeholder="rexFund.balance.split(' ')[0]"
+                :placeholder="rexFund && rexFund.balance.split(' ')[0]"
               />
             </template>
             <template v-if="buymode[0] === 'stakedcpu'">
@@ -249,7 +249,7 @@ export default {
             balance = this.liquidBalance;
             break;
           case "rexfund":
-            balance = getAssertCount(this.rexFund.balance);
+            balance = this.rexFund && getAssertCount(this.rexFund.balance);
             break;
           case "stakedcpu":
             balance = getAssertCount(this.userStaked.cpu_weight);
