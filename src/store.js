@@ -566,17 +566,41 @@ export default new Vuex.Store({
       });
     },
     // 卖出REX
-    sellrex({ state, commit, dispatch }, { assert } = {}) {
+    sellrex(
+      { state, commit, dispatch },
+      { assert, isLiquid = false, estimate } = {}
+    ) {
       return new Promise(async (resolve, reject) => {
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
           let contract = await state.eos.contract("eosio");
-          let res = await contract.sellrex(account.name, assert, {
-            authorization: account.name + "@" + getPermission(account.authority)
-          });
-          resolve(res);
-          commit("setLoadingShow", { loadingShow: false });
+
+          if (isLiquid) {
+            // 出售然后自动提现
+            let res = await contract.transaction(tr => {
+              // assert unit: REX;
+              tr.sellrex(account.name, assert, {
+                authorization:
+                  account.name + "@" + getPermission(account.authority)
+              });
+              // assert unit: EOS
+              tr.withdraw(account.name, estimate, {
+                authorization:
+                  account.name + "@" + getPermission(account.authority)
+              });
+            });
+            resolve(res);
+            commit("setLoadingShow", { loadingShow: false });
+          } else {
+            let res = await contract.sellrex(account.name, assert, {
+              authorization:
+                account.name + "@" + getPermission(account.authority)
+            });
+            resolve(res);
+            commit("setLoadingShow", { loadingShow: false });
+          }
+
           setTimeout(() => {
             dispatch("getRexBal"); // 更新当前帐号REX质押详情
             dispatch("getAccountBalance"); // 更新当前帐号余额

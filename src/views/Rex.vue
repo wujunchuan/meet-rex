@@ -38,6 +38,7 @@
           <div>
             <template v-if="buymode[0] === 'liquid'">
               <input
+                class="number-input"
                 v-model.number.trim="buyAcount"
                 type="number"
                 :placeholder="liquidBalance"
@@ -45,6 +46,7 @@
             </template>
             <template v-if="buymode[0] === 'rexfund'">
               <input
+                class="number-input"
                 v-model.number.trim="buyAcount"
                 type="number"
                 :placeholder="rexFund && rexFund.balance.split(' ')[0]"
@@ -52,6 +54,7 @@
             </template>
             <template v-if="buymode[0] === 'stakedcpu'">
               <input
+                class="number-input"
                 v-model.number.trim="buyAcount"
                 type="number"
                 :placeholder="userStaked.cpu_weight.split(' ')[0]"
@@ -59,6 +62,7 @@
             </template>
             <template v-if="buymode[0] === 'stakednet'">
               <input
+                class="number-input"
                 v-model.number.trim="buyAcount"
                 type="number"
                 :placeholder="userStaked.net_weight.split(' ')[0]"
@@ -116,6 +120,7 @@
           <h1 class="title">{{ $t("buy_rex_amount") }}</h1>
           <div>
             <input
+              class="number-input"
               v-model.number.trim="sellAcount"
               type="number"
               :placeholder="maturedRex"
@@ -131,6 +136,11 @@
           </div>
         </div>
 
+        <!-- 是否直接出售到LiquidEOS -->
+        <div class="forecast-values">
+          <h1 class="title">{{ $t("sell_rex_liquid") }}</h1>
+          <inline-x-switch v-model="isLiquid"></inline-x-switch>
+        </div>
         <!-- 预估可换 -->
         <div class="forecast-values">
           <h1 class="title">{{ $t("buy_rex_forecast") }}</h1>
@@ -151,7 +161,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
-import { PopupPicker, Group } from "vux";
+import { PopupPicker, Group, InlineXSwitch } from "vux";
 import {
   getAssertCount,
   toFixed,
@@ -167,6 +177,7 @@ export default {
       sellAcount: null, // 出售的数量
       forecast_buy_value: null, // 预估可兑换[buy]
       forecast_sell_value: null, // 预估可兑换[sell]
+      isLiquid: true, // 出售REX是否直接进账到LiquidEOS中（如果为true，需要额外的内联交易）
       buymodeList: [
         [
           {
@@ -223,7 +234,9 @@ export default {
             return;
           }
           res = await this.sellrex({
-            assert: toAssertSymbolWithoutComma(this.sellAcount, 4, "REX")
+            assert: toAssertSymbolWithoutComma(this.sellAcount, 4, "REX"),
+            isLiquid: this.isLiquid,
+            estimate: this.forecast_sell_value
           });
         }
         if (res.transaction_id) {
@@ -370,6 +383,7 @@ export default {
     ])
   },
   components: {
+    InlineXSwitch,
     PopupPicker,
     Group
   }
@@ -444,7 +458,7 @@ export default {
     color: #888888;
     line-height: 22px;
   }
-  input {
+  input.number-input {
     font-family: "MarkPro-Medium";
     text-align: right;
     margin-bottom: 15px;

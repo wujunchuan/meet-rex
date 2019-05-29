@@ -91,5 +91,6 @@ module.exports = {
   loans_withdraw_continue: "Amount",
   loans_deposit_confirm: "Deposit",
   loans_withdraw_confirm: "Withdraw",
-  home_loans: "Resource Loans"
+  home_loans: "Resource Loans",
+  sell_rex_liquid: "Withdraw to Liquid EOS"
 };
