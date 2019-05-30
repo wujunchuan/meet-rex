@@ -233,10 +233,11 @@ export default {
             });
             return;
           }
+          let forecast_sell_value = this.sellAcount * this.rexRate;
           res = await this.sellrex({
             assert: toAssertSymbolWithoutComma(this.sellAcount, 4, "REX"),
             isLiquid: this.isLiquid,
-            estimate: this.forecast_sell_value
+            estimate: toAssertSymbolWithoutComma(forecast_sell_value, 4, "EOS")
           });
         }
         if (res.transaction_id) {
