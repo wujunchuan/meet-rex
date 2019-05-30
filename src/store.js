@@ -695,8 +695,13 @@ export default new Vuex.Store({
           window.ScatterJS.scatter = window.scatter;
         }
         let connect = null;
+        await new Promise(resolve => {
+          setTimeout(() => {
+            ScatterJS.plugins(new ScatterEOS());
+            resolve();
+          }, 500);
+        });
         try {
-          ScatterJS.plugins(new ScatterEOS());
           connect = await ScatterJS.scatter.connect("REX | MEET.ONE");
           if (!connect) {
             alert("init failed");
