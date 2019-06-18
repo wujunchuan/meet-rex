@@ -66,6 +66,11 @@ export default new Vuex.Store({
       state.liquidBalance = Number(payload.liquidBalance);
     },
     setLoadingShow(state, payload) {
+      if (state.isInject) {
+        // 如果是在客户端内, 则默认不显示Loading
+        state.loadingShow = false;
+        return;
+      }
       state.loadingShow = payload.loadingShow;
     },
     setEos(state, payload) {
