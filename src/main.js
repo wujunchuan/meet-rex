@@ -84,8 +84,8 @@ Vue.use(ToastPlugin, { position: "bottom", type: "text", width: "14.6em" });
 /**
  *  移除移动端点击延迟
  */
-import FastClick from "fastclick";
-FastClick.attach(document.body);
+// import FastClick from "fastclick";
+// FastClick.attach(document.body);
 
 Vue.config.productionTip = false;
 
@@ -137,6 +137,14 @@ router.beforeEach((to, from, next) => {
   // 动态设置标题
   document.title = Vue.i18n.translate(to.meta.title);
   next();
+});
+
+router.afterEach(to => {
+  if (window.ga) {
+    console.info(to.fullPath);
+    window.ga("set", "page", "rex" + to.fullPath); // 你可能想根据请求参数添加其他参数，可以修改这里的 to.fullPath
+    window.ga("send", "pageview");
+  }
 });
 
 new Vue({

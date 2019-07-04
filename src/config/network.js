@@ -3,13 +3,12 @@
  * @Author: JohnTrump
  * @Date: 2019-04-19 16:24:44
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2019-06-10 21:10:21
+ * @Last Modified time: 2019-07-04 19:38:50
  */
 export default {
   blockchain: "eos",
   protocol: "https",
   // host: "api.eosbeijing.one",
-  // TODO: for debug
   host: "mainnet-tw.shareeos.com",
   // host: "mainnet.meet.one",
   // host: "mainnet.shareeos.com",
