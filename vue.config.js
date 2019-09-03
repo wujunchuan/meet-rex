@@ -1,8 +1,8 @@
 module.exports = {
   lintOnSave: true,
-
   // devServer
   devServer: {
+    disableHostCheck: true,
     // 代理这个地址[CORS]
     proxy: {
       "/eos_api": {
