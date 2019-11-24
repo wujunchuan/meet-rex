@@ -3,9 +3,9 @@ import Vuex from "vuex";
 import http from "./http";
 // import router from "./router";
 
-import Eos from "eosjs";
+import { Api, JsonRpc } from "eosjs"; // eosjs@beta(20) and up
 import ScatterJS from "scatterjs-core";
-import ScatterEOS from "scatterjs-plugin-eosjs";
+import ScatterEOS from "scatterjs-plugin-eosjs2";
 import _network from "./config/network";
 const network = Object.assign({}, _network);
 const requiredFields = { accounts: [network] };
@@ -17,6 +17,11 @@ import vuexI18n from "vuex-i18n";
 
 import { getPermission } from "./util";
 
+const rpc = new JsonRpc(
+  `${network.protocol}://${network.host}:${network.port}`,
+  {}
+); // 初始化JsonPrc接口
+
 export default new Vuex.Store({
   modules: {
     i18n: vuexI18n.store
@@ -25,9 +30,7 @@ export default new Vuex.Store({
     account: null, // 当前账号名(Scatter获取)
     userStaked: null,
     scatter: null, // Global Scatter Object
-    eos: Eos({
-      httpEndpoint: `${_network.protocol}://${_network.host}:${_network.port}`
-    }), // Global Eos Obj
+    eos: new Api({ rpc }),
     loadingShow: false, // Loading status
     liquidBalance: 0,
     rexPool: null,
@@ -109,16 +112,20 @@ export default new Vuex.Store({
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          let contract = await state.eos.contract("eosio");
-          let res = await contract.defcpuloan(
+          let res = await state.eos.transact(
             {
-              from: from,
-              loan_num: loan_num,
-              amount: amount
+              actions: [
+                ...require("./actions/defloan").default(account, {
+                  amount,
+                  loan_num,
+                  from,
+                  type: "cpu"
+                })
+              ]
             },
             {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
+              blocksBehind: 3,
+              expireSeconds: 60
             }
           );
           resolve(res);
@@ -136,16 +143,20 @@ export default new Vuex.Store({
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          let contract = await state.eos.contract("eosio");
-          let res = await contract.defnetloan(
+          let res = await state.eos.transact(
             {
-              from: from,
-              loan_num: loan_num,
-              amount: amount
+              actions: [
+                ...require("./actions/defloan").default(account, {
+                  amount,
+                  loan_num,
+                  from,
+                  type: "net"
+                })
+              ]
             },
             {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
+              blocksBehind: 3,
+              expireSeconds: 60
             }
           );
           resolve(res);
@@ -163,16 +174,21 @@ export default new Vuex.Store({
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          let contract = await state.eos.contract("eosio");
-          let res = await contract.fundcpuloan(
+
+          let res = await state.eos.transact(
             {
-              from: from,
-              loan_num: loan_num,
-              payment: amount
+              actions: [
+                ...require("./actions/fundloan").default(account, {
+                  amount,
+                  loan_num,
+                  from,
+                  type: "cpu"
+                })
+              ]
             },
             {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
+              blocksBehind: 3,
+              expireSeconds: 60
             }
           );
           resolve(res);
@@ -190,16 +206,20 @@ export default new Vuex.Store({
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          let contract = await state.eos.contract("eosio");
-          let res = await contract.fundnetloan(
+          let res = await state.eos.transact(
             {
-              from: from,
-              loan_num: loan_num,
-              payment: amount
+              actions: [
+                ...require("./actions/fundloan").default(account, {
+                  amount,
+                  loan_num,
+                  from,
+                  type: "net"
+                })
+              ]
             },
             {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
+              blocksBehind: 3,
+              expireSeconds: 60
             }
           );
           resolve(res);
@@ -216,16 +236,17 @@ export default new Vuex.Store({
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          let contract = await state.eos.contract("eosio");
-          let res = await contract.voteproducer(
+          await state.eos.transact(
             {
-              voter: account.name,
-              proxy: "rex.m",
-              producers: []
+              actions: [
+                ...require("./actions/voteproducer").default(account, {
+                  proxy: "rex.m"
+                })
+              ]
             },
             {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
+              blocksBehind: 3,
+              expireSeconds: 60
             }
           );
           resolve(res);
@@ -245,16 +266,13 @@ export default new Vuex.Store({
         await dispatch("initScatter");
         try {
           if (state.scatter && state.account) {
-            // let mock_name = "wujunchuan12";
-            let res = await state.eos.getTableRows({
+            let res = await rpc.get_table_rows({
               code: "eosio",
               table: "voters",
               scope: "eosio",
               json: true,
               lower_bound: " " + state.account.name,
               upper_bound: " " + state.account.name,
-              // lower_bound: " " + mock_name,
-              // upper_bound: " " + mock_name,
               limit: 100
             });
             if (res.rows && res.rows.length) {
@@ -281,7 +299,7 @@ export default new Vuex.Store({
         await dispatch("initScatter");
         try {
           if (state.scatter) {
-            let res = await state.eos.getTableRows({
+            let res = await rpc.get_table_rows({
               code: "eosio",
               table: "cpuloan",
               json: true,
@@ -316,7 +334,7 @@ export default new Vuex.Store({
         await dispatch("initScatter");
         try {
           if (state.scatter) {
-            let res = await state.eos.getTableRows({
+            let res = await rpc.get_table_rows({
               code: "eosio",
               table: "netloan",
               json: true,
@@ -355,17 +373,20 @@ export default new Vuex.Store({
           if (state.scatter) {
             commit("setLoadingShow", { loadingShow: true });
             let account = state.account;
-            let contract = await state.eos.contract("eosio");
-            let res = await contract.rentcpu(
+            let res = await state.eos.transact(
               {
-                from: account.name,
-                receiver: receiver || account.name,
-                loan_payment: loan_payment,
-                loan_fund: loan_fund || "0.0000 EOS"
+                actions: [
+                  ...require("./actions/rent").default(account, {
+                    type: "cpu",
+                    loan_fund,
+                    loan_payment,
+                    receiver
+                  })
+                ]
               },
               {
-                authorization:
-                  account.name + "@" + getPermission(account.authority)
+                blocksBehind: 3,
+                expireSeconds: 60
               }
             );
             resolve(res);
@@ -392,17 +413,20 @@ export default new Vuex.Store({
           if (state.scatter) {
             commit("setLoadingShow", { loadingShow: true });
             let account = state.account;
-            let contract = await state.eos.contract("eosio");
-            let res = await contract.rentnet(
+            let res = await state.eos.transact(
               {
-                from: account.name,
-                receiver: receiver || account.name,
-                loan_payment: loan_payment,
-                loan_fund: loan_fund || "0.0000 EOS"
+                actions: [
+                  ...require("./actions/rent").default(account, {
+                    type: "net",
+                    receiver,
+                    loan_fund,
+                    loan_payment
+                  })
+                ]
               },
               {
-                authorization:
-                  account.name + "@" + getPermission(account.authority)
+                blocksBehind: 3,
+                expireSeconds: 60
               }
             );
             resolve(res);
@@ -435,31 +459,28 @@ export default new Vuex.Store({
           if (state.scatter) {
             commit("setLoadingShow", { loadingShow: true });
             let account = state.account;
-            let authorization = {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
-            };
-            let contract = await state.eos.contract("eosio");
-            let res = await contract.transaction(tr => {
-              tr.rentcpu(
-                {
-                  from: account.name,
-                  receiver: receiver || account.name,
-                  loan_payment: cpu_loan_payment,
-                  loan_fund: cpu_loan_fund || "0.0000 EOS"
-                },
-                authorization
-              );
-              tr.rentnet(
-                {
-                  from: account.name,
-                  receiver: receiver || account.name,
-                  loan_payment: net_loan_payment,
-                  loan_fund: net_loan_fund || "0.0000 EOS"
-                },
-                authorization
-              );
-            });
+            let res = await state.eos.transact(
+              {
+                actions: [
+                  ...require("./actions/rent").default(account, {
+                    type: "cpu",
+                    loan_fund: cpu_loan_fund || "0.0000 EOS",
+                    receiver,
+                    loan_payment: cpu_loan_payment
+                  }),
+                  ...require("./actions/rent").default(account, {
+                    type: "net",
+                    loan_payment: net_loan_payment,
+                    receiver,
+                    loan_fund: net_loan_fund || "0.0000 EOS"
+                  })
+                ]
+              },
+              {
+                blocksBehind: 3,
+                expireSeconds: 60
+              }
+            );
             resolve(res);
             commit("setLoadingShow", { loadingShow: false });
             dispatch("getRexFund"); // 获取rexfund信息
@@ -481,7 +502,7 @@ export default new Vuex.Store({
         await dispatch("initScatter");
         try {
           if (state.scatter) {
-            let res = await state.eos.getTableRows({
+            let res = await rpc.get_table_rows({
               json: true,
               code: "eosio",
               scope: state.account.name,
@@ -505,7 +526,7 @@ export default new Vuex.Store({
       });
     },
     // 买入REX
-    buyrex({ state, commit, dispatch }, { assert, mode = "fund" } = {}) {
+    buyrex({ state, commit, dispatch }, { assert, mode = "rexfund" } = {}) {
       return new Promise(async (resolve, reject) => {
         await dispatch("initScatter");
         try {
@@ -515,46 +536,20 @@ export default new Vuex.Store({
           }
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          let contract = await state.eos.contract("eosio");
-          let res = null;
-          if (mode === "rexfund") {
-            // - 通过FOUND -> buyrex
-            res = await contract.buyrex(account.name, assert, {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
-            });
-          } else if (mode === "liquid") {
-            // 通过 liquidEOS -> buyrex
-            // NOTE: smart contract multi-actions demo
-            res = await contract.transaction(tr => {
-              // first, deposit liquid-eos -> eos fund
-              tr.deposit(account.name, assert, {
-                authorization:
-                  account.name + "@" + getPermission(account.authority)
-              });
-              // second, buyrex by eos fund
-              tr.buyrex(account.name, assert, {
-                authorization:
-                  account.name + "@" + getPermission(account.authority)
-              });
-            });
-          } else if (mode === "stakedcpu" || mode === "stakednet") {
-            res = await contract.unstaketorex(
-              {
-                owner: account.name,
-                receiver: account.name,
-                from_cpu: mode === "stakedcpu" ? assert : "0.0000 EOS",
-                from_net: mode === "stakednet" ? assert : "0.0000 EOS"
-              },
-              {
-                authorization:
-                  account.name + "@" + getPermission(account.authority)
-              }
-            );
-          } else {
-            alert("None payment mode selected");
-          }
-
+          let res = await state.eos.transact(
+            {
+              actions: [
+                ...require("./actions/buyrex").default(account, {
+                  mode,
+                  assert
+                })
+              ]
+            },
+            {
+              blocksBehind: 3,
+              expireSeconds: 60
+            }
+          );
           resolve(res);
           commit("setLoadingShow", { loadingShow: false });
 
@@ -579,32 +574,23 @@ export default new Vuex.Store({
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          let contract = await state.eos.contract("eosio");
-
-          if (isLiquid) {
-            // 出售然后自动提现
-            let res = await contract.transaction(tr => {
-              // assert unit: REX;
-              tr.sellrex(account.name, assert, {
-                authorization:
-                  account.name + "@" + getPermission(account.authority)
-              });
-              // assert unit: EOS
-              tr.withdraw(account.name, estimate, {
-                authorization:
-                  account.name + "@" + getPermission(account.authority)
-              });
-            });
-            resolve(res);
-            commit("setLoadingShow", { loadingShow: false });
-          } else {
-            let res = await contract.sellrex(account.name, assert, {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
-            });
-            resolve(res);
-            commit("setLoadingShow", { loadingShow: false });
-          }
+          let res = await state.eos.transact(
+            {
+              actions: [
+                ...require("./actions/sellrex").default(account, {
+                  assert,
+                  estimate,
+                  isLiquid
+                })
+              ]
+            },
+            {
+              blocksBehind: 3,
+              expireSeconds: 60
+            }
+          );
+          resolve(res);
+          commit("setLoadingShow", { loadingShow: false });
 
           setTimeout(() => {
             dispatch("getRexBal"); // 更新当前帐号REX质押详情
@@ -622,12 +608,20 @@ export default new Vuex.Store({
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          let res = await state.eos.contract("eosio").then(contract => {
-            return contract.mvtosavings(account.name, assert, {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
-            });
-          });
+          let res = await state.eos.transact(
+            {
+              actions: [
+                ...require("./actions/savings").default(account, {
+                  assert,
+                  type: "to"
+                })
+              ]
+            },
+            {
+              blocksBehind: 3,
+              expireSeconds: 60
+            }
+          );
           resolve(res);
           commit("setLoadingShow", { loadingShow: false });
           setTimeout(() => {
@@ -650,12 +644,20 @@ export default new Vuex.Store({
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          let res = await state.eos.contract("eosio").then(contract => {
-            return contract.mvfrsavings(account.name, assert, {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
-            });
-          });
+          let res = await state.eos.transact(
+            {
+              actions: [
+                ...require("./actions/savings").default(account, {
+                  assert,
+                  type: "from"
+                })
+              ]
+            },
+            {
+              blocksBehind: 3,
+              expireSeconds: 60
+            }
+          );
           resolve(res);
           commit("setLoadingShow", { loadingShow: false });
           setTimeout(() => {
@@ -716,7 +718,7 @@ export default new Vuex.Store({
           const scatter = ScatterJS.scatter;
           window.scatter = scatter;
           commit("setScatter", { scatter });
-          const scatterEos = scatter.eos(network, Eos);
+          const scatterEos = scatter.eos(network, Api, { rpc, beta3: true });
           commit("setEos", { eos: scatterEos });
           window.ScatterJS = null;
           resolve({ scatter, eos: scatterEos });
@@ -730,7 +732,7 @@ export default new Vuex.Store({
       return new Promise(async (resolve, reject) => {
         await dispatch("initScatter");
         try {
-          let res = await state.eos.getTableRows({
+          let res = await rpc.get_table_rows({
             json: true, // Get the response as json
             code: "eosio.token", // Contract that we target
             scope: " " + state.account.name, // Account that owns the data
@@ -787,7 +789,7 @@ export default new Vuex.Store({
         await dispatch("initScatter");
         try {
           if (state.scatter) {
-            let res = await state.eos.getTableRows({
+            let res = await rpc.get_table_rows({
               code: "eosio",
               json: true,
               limit: 1,
@@ -814,7 +816,7 @@ export default new Vuex.Store({
     getRexPool({ commit, state }) {
       return new Promise(async (resolve, reject) => {
         try {
-          let res = await state.eos.getTableRows({
+          let res = await rpc.get_table_rows({
             code: "eosio",
             json: true,
             scope: "eosio",
@@ -852,7 +854,7 @@ export default new Vuex.Store({
         await dispatch("initScatter");
         try {
           if (state.scatter) {
-            let res = await state.eos.getTableRows({
+            let res = await rpc.get_table_rows({
               json: true,
               code: "eosio",
               scope: "eosio",

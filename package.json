@@ -1,6 +1,6 @@
 {
-  "name": "meet-hcb",
-  "version": "1.5.9",
+  "name": "meet-rex",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -11,7 +11,7 @@
     "axios": "^0.18.0",
     "core-js": "^2.6.5",
     "echarts": "^4.2.1",
-    "eosjs": "^16.0.6",
+    "eosjs": "^20.0.0",
     "fastclick": "^1.0.6",
     "lib-flexible": "^0.3.2",
     "lodash": "^4.17.11",
@@ -19,7 +19,7 @@
     "moment": "^2.24.0",
     "object-assign": "^4.1.1",
     "scatterjs-core": "^2.7.16",
-    "scatterjs-plugin-eosjs": "^1.5.1",
+    "scatterjs-plugin-eosjs2": "^1.5.0",
     "vue": "^2.6.10",
     "vue-echarts": "^4.0.2",
     "vue-router": "^3.0.3",

@@ -131,12 +131,30 @@ export default {
         let amount = toAssertSymbolWithoutComma(this.depositAcount);
         try {
           this.$store.commit("setLoadingShow", { loadingShow: true });
-          let res = await this.eos.contract("eosio").then(contract => {
-            return contract.deposit(this.account.name, amount, {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
-            });
-          });
+          let res = await this.eos.transact(
+            {
+              actions: [
+                {
+                  account: "eosio",
+                  name: "deposit",
+                  authorization: [
+                    {
+                      actor: account.name,
+                      permission: getPermission(account.authority)
+                    }
+                  ],
+                  data: {
+                    owner: this.account.name,
+                    amount
+                  }
+                }
+              ]
+            },
+            {
+              blocksBehind: 3,
+              expireSeconds: 60
+            }
+          );
           this.$vux.toast.show({
             text: this.$t("transaction-success")
           });
@@ -162,12 +180,30 @@ export default {
         let amount = toAssertSymbolWithoutComma(this.withdrawAcount);
         try {
           this.$store.commit("setLoadingShow", { loadingShow: true });
-          let res = await this.eos.contract("eosio").then(contract => {
-            return contract.withdraw(this.account.name, amount, {
-              authorization:
-                account.name + "@" + getPermission(account.authority)
-            });
-          });
+          let res = await this.eos.transact(
+            {
+              actions: [
+                {
+                  account: "eosio",
+                  name: "withdraw",
+                  authorization: [
+                    {
+                      actor: account.name,
+                      permission: getPermission(account.authority)
+                    }
+                  ],
+                  data: {
+                    owner: this.account.name,
+                    amount
+                  }
+                }
+              ]
+            },
+            {
+              blocksBehind: 3,
+              expireSeconds: 60
+            }
+          );
           this.$vux.toast.show({
             text: this.$t("transaction-success")
           });
