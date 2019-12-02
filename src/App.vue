@@ -142,6 +142,7 @@ export default {
     this.$store.dispatch("getRexPool");
     // 获取REX收益来源
     this.$store.dispatch("getRexProfits");
+    this.$store.dispatch("queryRexqueue");
     this.intervalId = window.setInterval(async () => {
       if (!this.scatter) {
         return;

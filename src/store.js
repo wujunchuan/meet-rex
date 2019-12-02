@@ -15,8 +15,6 @@ Vue.use(Vuex);
 // import { toFixed } from "./util";
 import vuexI18n from "vuex-i18n";
 
-import { getPermission } from "./util";
-
 const rpc = new JsonRpc(
   `${network.protocol}://${network.host}:${network.port}`,
   {}
@@ -27,24 +25,32 @@ export default new Vuex.Store({
     i18n: vuexI18n.store
   },
   state: {
-    account: null, // 当前账号名(Scatter获取)
-    userStaked: null,
-    scatter: null, // Global Scatter Object
+    account: undefined, // 当前账号名(Scatter获取)
+    userStaked: undefined,
+    scatter: undefined, // Global Scatter Object
     eos: new Api({ rpc }),
     loadingShow: false, // Loading status
     liquidBalance: 0,
-    rexPool: null,
-    rexBal: null,
-    rexProfits: null,
-    rexFund: null,
+    rexPool: undefined,
+    rexBal: undefined,
+    rexProfits: undefined,
+    rexFund: undefined,
     isInject: false,
     isShowBucket: false,
     isVoted: false, // 是否已经有代理投票或者投票满足21个节点，
     isShowVoteRequire: false,
-    cpuLoans: null, // cpu 租赁记录
-    netLoans: null // net 租赁记录
+    cpuLoans: undefined, // cpu 租赁记录
+    netLoans: undefined, // net 租赁记录
+    sellqueue: [], // 出售REX的列表
+    userQueue: undefined
   },
   mutations: {
+    setUserQueue(state, queue) {
+      state.userQueue = queue;
+    },
+    setSellqueue(state, queue) {
+      state.sellqueue = queue;
+    },
     setIsShowVoteRequire(state, { isShowVoteRequire }) {
       state.isShowVoteRequire = isShowVoteRequire;
     },
@@ -105,6 +111,86 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    queryMyRexqueue({ commit, state, dispatch }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          if (state.scatter) {
+            let res = await rpc.get_table_rows({
+              code: "eosio",
+              json: true,
+              limit: 1,
+              scope: "eosio",
+              table: "rexqueue",
+              table_key: "",
+              lower_bound: " " + state.account.name,
+              upper_bound: " " + state.account.name
+            });
+            if (res.rows && res.rows.length) {
+              let myqueue = res.rows[0];
+              resolve(myqueue);
+              commit("setUserQueue", myqueue);
+            }
+            resolve();
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
+    },
+    // query sell rex queue
+    queryRexqueue({ commit }) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          let res = await rpc.get_table_rows({
+            json: true,
+            code: "eosio",
+            scope: "eosio",
+            table: "rexqueue",
+            table_key: "order_time",
+            lower_bound: "",
+            upper_bound: "",
+            limit: 300,
+            key_type: "i64",
+            index_position: 2
+          });
+          let { rows } = res;
+          // when is_open = 1 means the queue is waitting
+          let globalSellQueue = rows.filter(item => item.is_open == 1);
+          commit("setSellqueue", globalSellQueue);
+          resolve(globalSellQueue);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    },
+    // Update rex (include sell queue)
+    // ref to https://github.com/EOSIO/eosio.contracts/blob/52fbd4ac7e6c38c558302c48d00469a4bed35f7c/contracts/eosio.system/src/rex.cpp#L205
+    updateRex({ dispatch, commit, state }) {
+      return new Promise(async (resolve, reject) => {
+        await dispatch("initScatter");
+        try {
+          commit("setLoadingShow", { loadingShow: true });
+          let account = state.account;
+          let res = await state.eos.transact(
+            {
+              actions: [...require("./actions/update").default(account)]
+            },
+            {
+              blocksBehind: 3,
+              expireSeconds: 60
+            }
+          );
+          resolve(res);
+          dispatch("queryRexqueue");
+          dispatch("queryMyRexqueue");
+        } catch (error) {
+          reject(error);
+        } finally {
+          commit("setLoadingShow", { loadingShow: false });
+        }
+      });
+    },
     // withdraw from loan's balance[cpu loan]
     defcpuloan({ state, dispatch, commit }, { loan_num, from, amount }) {
       return new Promise(async (resolve, reject) => {
@@ -236,7 +322,7 @@ export default new Vuex.Store({
         try {
           commit("setLoadingShow", { loadingShow: true });
           let account = state.account;
-          await state.eos.transact(
+          let res = await state.eos.transact(
             {
               actions: [
                 ...require("./actions/voteproducer").default(account, {
@@ -775,6 +861,7 @@ export default new Vuex.Store({
             // 获取CPU与NET Loans
             dispatch("getCPULoan");
             dispatch("getNETLoan");
+            dispatch("queryMyRexqueue");
             resolve();
           } else {
             reject();
@@ -813,7 +900,7 @@ export default new Vuex.Store({
       });
     },
     // 获取rexpool信息
-    getRexPool({ commit, state }) {
+    getRexPool({ commit }) {
       return new Promise(async (resolve, reject) => {
         try {
           let res = await rpc.get_table_rows({
