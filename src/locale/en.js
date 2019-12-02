@@ -92,5 +92,9 @@ module.exports = {
   loans_deposit_confirm: "Deposit",
   loans_withdraw_confirm: "Withdraw",
   home_loans: "Resource Loans",
-  sell_rex_liquid: "Withdraw to Liquid EOS"
+  sell_rex_liquid: "Withdraw to Liquid EOS",
+  sellqueue: "Orders in sell queue:",
+  sellqueue_title: "Orders in REX sell queue",
+  refresh: "Refresh",
+  myqueue: "My Sell Queue[Refresh]"
 };

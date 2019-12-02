@@ -90,5 +90,9 @@ module.exports = {
   loans_deposit_confirm: "确认续租",
   loans_withdraw_confirm: "确认取出",
   home_loans: "租赁记录",
-  sell_rex_liquid: "提取到EOS可用余额"
+  sell_rex_liquid: "提取到EOS可用余额",
+  sellqueue: "REX卖出排队订单数:",
+  sellqueue_title: "卖出REX排队中的订单",
+  refresh: "刷新数据",
+  myqueue: "排队卖出中[点击更新]"
 };

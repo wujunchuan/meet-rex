@@ -112,6 +112,18 @@
             </template>
           </div>
         </div>
+        <!-- 排队卖出中的REX -->
+        <div class="rex-balance" v-if="userQueue" @click="handleUpdateRex()">
+          <h1 class="title">{{ $t("myqueue") }}</h1>
+          <div class="number-medium">
+            <template v-if="userQueue">
+              {{ userQueue.rex_requested }}
+            </template>
+            <template v-else>
+              {{ $t("is-null") }}
+            </template>
+          </div>
+        </div>
       </div>
 
       <!-- 金额 | 及预估可换 -->
@@ -146,6 +158,13 @@
           <h1 class="title">{{ $t("buy_rex_forecast") }}</h1>
           <div class="number-medium">
             {{ forecast_sell_value }}
+          </div>
+        </div>
+        <!-- REX卖出排队订单数: 0 -->
+        <div class="forecast-values" v-if="sellqueue.length > 0">
+          <h1 class="title">{{ $t("sellqueue") }}</h1>
+          <div class="number-medium">
+            {{ sellqueue.length }}
           </div>
         </div>
       </div>
@@ -201,6 +220,19 @@ export default {
     };
   },
   methods: {
+    async handleUpdateRex() {
+      try {
+        // let res = await this.updateRex();
+        let res = await this.$store.dispatch("updateRex");
+        if (res.transaction_id) {
+          this.$vux.toast.show({
+            text: this.$t("transaction-success")
+          });
+        }
+      } catch (error) {
+        alert(JSON.stringify(error));
+      }
+    },
     // 确认交易
     async pushTransaction() {
       try {
@@ -283,7 +315,13 @@ export default {
         this.sellAcount = toFixed(balance * rate);
       }
     },
-    ...mapActions(["sellrex", "buyrex"])
+    ...mapActions([
+      "sellrex",
+      "buyrex",
+      "queryMyRexqueue",
+      "queryRexqueue",
+      "updateRex"
+    ])
   },
   watch: {
     i18n(val, oldval) {
@@ -374,13 +412,17 @@ export default {
     i18n() {
       return this.$store.state.i18n.locale;
     },
+    sellqueue() {
+      return this.$store.state.sellqueue || [];
+    },
     ...mapState([
       "liquidBalance",
       "rexBal",
       "rexFund",
       "rexPool",
       "userStaked",
-      "isVoted"
+      "isVoted",
+      "userQueue"
     ])
   },
   components: {
