@@ -356,7 +356,10 @@ export default {
       return getAssertCount(this.rexBal && this.rexBal.rex_balance);
     },
     rexValue() {
-      let rexValue = this.rexBalance * this.rexRate;
+      // rex对应的EOS价值: (rexBalance * rexRate) + rexFund
+      let rexValue =
+        this.rexBalance * this.rexRate +
+        getAssertCount(this.rexFund && this.rexFund.balance);
       return rexValue;
     },
     // REX价格

@@ -3,7 +3,7 @@
  * @Author: JohnTrump
  * @Date: 2019-04-19 16:24:44
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2019-12-02 17:43:21
+ * @Last Modified time: 2019-12-06 10:12:29
  */
 export default {
   blockchain: "eos",
