@@ -37,11 +37,15 @@
         </div>
       </a>
     </template>
+    <!-- 返回上级 -->
+    <cancel-button :style="{ marginTop: '10px' }" />
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
+import CancelButton from "../components/CancelButton";
+
 export default {
   methods: {
     navto(loan) {
@@ -71,6 +75,9 @@ export default {
       return loansList;
     },
     ...mapState(["cpuLoans", "netLoans"])
+  },
+  components: {
+    CancelButton
   }
 };
 </script>

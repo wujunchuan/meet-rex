@@ -1,3 +1,4 @@
+// REX Fund管理
 <template>
   <div class="fund">
     <div class="container">
@@ -77,6 +78,7 @@
           mode === "deposit" ? $t("deposit-confirm") : $t("withdraw-confirm")
         }}
       </div>
+      <cancel-button />
     </div>
 
     <div class="container">
@@ -99,6 +101,8 @@
 </template>
 <script>
 import { mapState } from "vuex";
+import CancelButton from "../components/CancelButton";
+
 import {
   getAssertCount,
   toFixed,
@@ -259,6 +263,9 @@ export default {
         return 0;
       }
     }
+  },
+  components: {
+    CancelButton
   }
 };
 </script>

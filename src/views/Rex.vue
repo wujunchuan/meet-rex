@@ -1,3 +1,4 @@
+// 购买REX
 <template>
   <div class="rex">
     <div class="container">
@@ -174,6 +175,7 @@
       <div class="button-confirm touchable" @click="pushTransaction">
         {{ mode === "buy" ? $t("buy_rex_confirm") : $t("sell_rex_confirm") }}
       </div>
+      <cancel-button />
     </div>
   </div>
 </template>
@@ -181,6 +183,7 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import { PopupPicker, Group, InlineXSwitch } from "vux";
+import CancelButton from "../components/CancelButton";
 import {
   getAssertCount,
   toFixed,
@@ -428,7 +431,8 @@ export default {
   components: {
     InlineXSwitch,
     PopupPicker,
-    Group
+    Group,
+    CancelButton
   }
 };
 </script>

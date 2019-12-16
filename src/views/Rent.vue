@@ -1,3 +1,4 @@
+// 租赁资源
 <template>
   <div class="rent">
     <div class="container">
@@ -85,12 +86,14 @@
       <div class="button-confirm touchable" @click="pushTransaction">
         {{ $t("confirm_borrow") }}
       </div>
+      <cancel-button />
     </div>
   </div>
 </template>
 
 <script>
 import { XInput, Group } from "vux";
+import CancelButton from "../components/CancelButton";
 import {
   getAssertCount,
   toFixed,
@@ -252,7 +255,8 @@ export default {
   },
   components: {
     XInput,
-    Group
+    Group,
+    CancelButton
   }
 };
 </script>

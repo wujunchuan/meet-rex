@@ -115,6 +115,7 @@
             : $t("loans_withdraw_confirm")
         }}
       </div>
+      <cancel-button />
     </div>
   </div>
 </template>
@@ -122,6 +123,7 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { toAssertSymbolWithoutComma } from "../util";
+import CancelButton from "../components/CancelButton";
 export default {
   created() {
     if (!this.loan) {
@@ -328,6 +330,9 @@ export default {
       }
     },
     ...mapActions(["defcpuloan", "defnetloan", "fundcpuloan", "fundnetloan"])
+  },
+  components: {
+    CancelButton
   }
 };
 </script>

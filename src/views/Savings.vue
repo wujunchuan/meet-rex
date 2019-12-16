@@ -77,6 +77,7 @@
       <div class="button-confirm touchable" @click="pushTransaction">
         {{ mode === "lock" ? $t("confirm_lock") : $t("confirm_unlock") }}
       </div>
+      <cancel-button />
     </div>
 
     <div class="container">
@@ -93,6 +94,7 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import { toFixed, toAssertSymbolWithoutComma } from "../util";
+import CancelButton from "../components/CancelButton";
 
 export default {
   data() {
@@ -198,6 +200,9 @@ export default {
       }
     },
     ...mapActions(["mvtosavings", "mvfrsavings"])
+  },
+  components: {
+    CancelButton
   }
 };
 </script>
