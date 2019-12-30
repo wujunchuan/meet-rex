@@ -95,5 +95,6 @@ module.exports = {
   sellqueue_title: "卖出REX排队中的订单",
   refresh: "刷新数据",
   myqueue: "排队卖出中[点击更新]",
-  cancel: "取消"
+  cancel: "取消",
+  back: "后退"
 };

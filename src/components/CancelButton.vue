@@ -1,6 +1,6 @@
 <template>
   <div class="cancel touchable" @click="handleClick">
-    {{ $t("cancel") }}
+    {{ $t("back") }}
   </div>
 </template>
 

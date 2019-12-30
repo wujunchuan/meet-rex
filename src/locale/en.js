@@ -97,5 +97,6 @@ module.exports = {
   sellqueue_title: "Orders in REX sell queue",
   refresh: "Refresh",
   myqueue: "My Sell Queue[Refresh]",
-  cancel: "Cancel"
+  cancel: "Cancel",
+  back: "Back"
 };
