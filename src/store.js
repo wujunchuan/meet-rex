@@ -90,6 +90,9 @@ export default new Vuex.Store({
     },
     setAccount(state, payload) {
       state.account = payload.account;
+      // state.account = {
+      //   name: "ha2tsnbzgmge"
+      // };
     },
     setRexPool(state, payload) {
       state.rexPool = payload.rexPool;

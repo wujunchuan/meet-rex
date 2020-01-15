@@ -376,7 +376,7 @@ export default {
         this.rexBal.rex_maturities.length > 0 &&
         this.rexBal.rex_maturities.filter(item => {
           // 过期时间 - 当前时间 < 0, 意味着已经过期但是未更新
-          return new Date(item.first).getTime() - new Date().getTime() < 0;
+          return new Date(item.key + "Z").getTime() - new Date().getTime() < 0;
         })
       );
     },
@@ -389,7 +389,7 @@ export default {
       if (this.rex_maturities && this.rex_maturities.length > 0) {
         this.rex_maturities.forEach(i => {
           console.log(i);
-          addition = addition + Number(i.second);
+          addition = addition + Number(i.value);
         });
       }
       return (

@@ -23,12 +23,11 @@
           <template v-for="(rex_maturity, index) in rex_maturities">
             <tr :key="index">
               <td>
-                {{ rex_maturity.first | formatTime({ format: "MM-DD HH:mm" }) }}
+                {{ rex_maturity.key | formatTime({ format: "MM-DD HH:mm" }) }}
               </td>
               <td>
                 {{
-                  (rex_maturity.second / 10000)
-                    | formatAssert({ symbol: "REX" })
+                  (rex_maturity.value / 10000) | formatAssert({ symbol: "REX" })
                 }}
               </td>
             </tr>
@@ -85,14 +84,14 @@ export default {
         let unmaturedRexForeverIndex = rex_maturities.length - 1;
         if (unmaturedRexForeverIndex >= 0) {
           // 有这个记录的话
-          let maturedTime = rex_maturities[unmaturedRexForeverIndex].first;
+          let maturedTime = rex_maturities[unmaturedRexForeverIndex].key;
           // 随便取个 10天 ，反正这个时候早就他妈的matured了
           if (
-            new Date(maturedTime).getTime() - new Date().getTime() >
+            new Date(maturedTime + "Z").getTime() - new Date().getTime() >
             864000000
           ) {
             const result =
-              rex_maturities[unmaturedRexForeverIndex].second / 10000;
+              rex_maturities[unmaturedRexForeverIndex].value / 10000;
             return result;
           }
         }
@@ -111,7 +110,8 @@ export default {
         this.rexBal.rex_maturities.length > 0 &&
         this.rexBal.rex_maturities.filter(item => {
           return (
-            new Date(item.first).getTime() - new Date().getTime() < 864000000
+            new Date(item.key + "Z").getTime() - new Date().getTime() <
+            864000000
           );
         })
       );

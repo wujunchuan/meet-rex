@@ -111,14 +111,14 @@ export default {
         let unmaturedRexForeverIndex = rex_maturities.length - 1;
         if (unmaturedRexForeverIndex >= 0) {
           // 有这个记录的话
-          let maturedTime = rex_maturities[unmaturedRexForeverIndex].first;
+          let maturedTime = rex_maturities[unmaturedRexForeverIndex].key + "Z";
           // 随便取个 10天 ，反正这个时候早就他妈的matured了
           if (
             new Date(maturedTime).getTime() - new Date().getTime() >
             864000000
           ) {
             const result =
-              rex_maturities[unmaturedRexForeverIndex].second / 10000;
+              rex_maturities[unmaturedRexForeverIndex].value / 10000;
             return result;
           }
         }
