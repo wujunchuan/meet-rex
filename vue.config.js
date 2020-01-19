@@ -1,4 +1,15 @@
+/*
+ * webpack config inject
+ * @Author: JohnTrump
+ * @Date: 2020-01-19 10:14:37
+ * @Last Modified by: JohnTrump
+ * @Last Modified time: 2020-01-19 10:43:55
+ */
+const ENV = process.env.NODE_ENV || "development";
+
 module.exports = {
+  publicPath: ENV === "production" ? "//static.ethte.com/meet" : "/",
+
   lintOnSave: true,
   // devServer
   devServer: {
@@ -90,8 +101,6 @@ module.exports = {
       plugins: pluginList
     });
   },
-
-  publicPath: "/rex",
   outputDir: undefined,
   assetsDir: undefined,
   runtimeCompiler: undefined,

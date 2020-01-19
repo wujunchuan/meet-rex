@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build:production": "vue-cli-service build",
+    "build:upload": "bash upload.sh",
+    "build:deploy": "bash deploy.sh",
     "lint": "vue-cli-service lint",
-    "deploy": "bash deploy.sh"
+    "release": "npm run build:production && npm run build:upload && npm run build:deploy"
   },
   "dependencies": {
     "axios": "^0.18.0",
