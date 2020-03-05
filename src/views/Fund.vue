@@ -171,6 +171,7 @@ export default {
           }, 1200);
         } catch (error) {
           alert(JSON.stringify(error));
+          console.error(error);
         } finally {
           this.$store.commit("setLoadingShow", { loadingShow: false });
         }
@@ -220,6 +221,7 @@ export default {
           }, 1200);
         } catch (error) {
           alert(JSON.stringify(error));
+          console.error(error);
         } finally {
           this.$store.commit("setLoadingShow", { loadingShow: false });
         }
