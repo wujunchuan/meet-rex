@@ -70,6 +70,8 @@ module.exports = {
   loan_estimate: "租金估值",
   confirm_borrow: "确认借入",
   loan_notice_1: "当前资源租金为{rentRate} EOS * 30天 / EOS",
+  loan_notice_2: "租赁资源需要从REX备用金中扣除",
+  loan_notice_3: "立即存入备用金",
   error_account_length: "资源接收者 {receiver} 长度不能超过12个字符",
   vote_title: "投票给节点",
   vote_body:

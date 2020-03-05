@@ -78,6 +78,12 @@
       <div class="notes">
         {{ $t("notice") }}
         <li>{{ $t("loan_notice_1", { rentRate: rentRate }) }}</li>
+        <li>{{ $t("loan_notice_2") }}</li>
+        <li>
+          <router-link :to="{ name: 'fund' }">{{
+            $t("loan_notice_3")
+          }}</router-link>
+        </li>
       </div>
     </div>
 
@@ -171,6 +177,13 @@ export default {
   methods: {
     pushTransaction() {
       let receiver = this.receiver || this.defaultReceiver;
+      // 检查是否有余额
+      if (!(this.max_cpu_rentable && this.max_net_rentable)) {
+        alert(this.$i18n.translate("loan_notice_2"));
+        alert(this.$i18n.translate("loan_notice_3"));
+        this.$router.push({ name: "fund" });
+        return;
+      }
       if (receiver.length > 12) {
         this.$vux.toast.show({
           text: this.$t("error_account_length", { receiver: receiver })

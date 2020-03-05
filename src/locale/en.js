@@ -72,6 +72,8 @@ module.exports = {
   loan_estimate: "Loan estimate",
   confirm_borrow: "Borrow",
   loan_notice_1: "Current price: {rentRate} EOS * 30days / EOS",
+  loan_notice_2: "Borrow resource cost from REX Fund",
+  loan_notice_3: "Deposit to REX Fund now",
   error_account_length: "{receiver} can't be up to 12 characters long",
   vote_title: "Vote for BP",
   vote_body:
