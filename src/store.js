@@ -12,18 +12,12 @@ const requiredFields = { accounts: [network] };
 
 Vue.use(Vuex);
 
-// import { toFixed } from "./util";
-import vuexI18n from "vuex-i18n";
-
 const rpc = new JsonRpc(
   `${network.protocol}://${network.host}:${network.port}`,
   {}
 ); // 初始化JsonPrc接口
 
 export default new Vuex.Store({
-  modules: {
-    i18n: vuexI18n.store
-  },
   state: {
     account: undefined, // 当前账号名(Scatter获取)
     userStaked: undefined,
@@ -90,8 +84,9 @@ export default new Vuex.Store({
     },
     setAccount(state, payload) {
       state.account = payload.account;
+      // TODO: comment this
       // state.account = {
-      //   name: "ha2tsnbzgmge"
+      //   name: "abc123321.m"
       // };
     },
     setRexPool(state, payload) {

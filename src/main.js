@@ -34,7 +34,22 @@ function getQueryString(name) {
   }
   return "";
 }
+const storage = window.localStorage;
+/*
+获取语系优先级:
+  1. URL
+  2. localstorage
+*/
 let lang = getQueryString("lang");
+
+if (lang === '') {
+  lang = storage["lang"] || "en";
+} else {
+  storage.setItem("lang", lang);
+}
+
+
+/* 加载语系 */
 Vue.i18n.add("en", require("../src/locale/en"));
 Vue.i18n.add("zh-CN", require("../src/locale/zh-CN"));
 import objectAssign from "object-assign";
@@ -46,7 +61,8 @@ const finalLocales = {
 for (let i in finalLocales) {
   Vue.i18n.add(i, finalLocales[i]);
 }
-// 根据参数设置初始化语系
+
+/* 根据参数设置初始化语系 */
 if (/zh/.test(lang)) {
   Vue.i18n.set("zh-CN");
 } else if (/en/.test(lang)) {
@@ -54,6 +70,7 @@ if (/zh/.test(lang)) {
 } else {
   Vue.i18n.set("en");
 }
+
 /**
  * I18n End here
  */

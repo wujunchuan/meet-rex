@@ -72,7 +72,7 @@ export const getPermission = str => {
   let permissions = [];
   try {
     let hasActive = false;
-    permissions = str.split("&&");
+    permissions = typeof str === "string" ? str.split("&&") : [];
     if (permissions.length === 1) {
       authority = permissions[0];
     } else {
